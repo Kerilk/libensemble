@@ -17,8 +17,8 @@ import numpy as np
 
 # Import libEnsemble items for this test
 from libensemble.libE import libE
-from libensemble.sim_funcs.ytopt_obj import one_d_example as sim_f
-from libensemble.gen_funcs.ytopt_gen import persistent_ytopt as gen_f
+from libensemble.sim_funcs.ytopt_obj_xsbench import one_d_example as sim_f
+from libensemble.gen_funcs.ytopt_gen_xsbench import persistent_ytopt as gen_f
 from libensemble.alloc_funcs.start_only_persistent import only_persistent_gens as alloc_f
 from libensemble.tools import parse_args, save_libE_output, add_unique_random_streams
 
@@ -54,7 +54,7 @@ ytoptimizer = Optimizer(
 # Declare the gen_f that will generator points for the sim_f, and the various input/outputs
 gen_specs = {
     'gen_f': gen_f,
-    'out': [('NUM_THREADS', int, (1,)), ('BLOCK_SIZE', int, (1,)), ('OMP_PARALLEL', "<U50", (1,))],
+    'out': [('NUM_THREADS', int, (1,)), ('BLOCK_SIZE', int, (1,)), ('OMP_PARALLEL', "<U25", (1,))],
     'persis_in': ['RUN_TIME', 'NUM_THREADS', 'BLOCK_SIZE', 'OMP_PARALLEL'],
     'user': {
         'ytoptimizer': ytoptimizer,

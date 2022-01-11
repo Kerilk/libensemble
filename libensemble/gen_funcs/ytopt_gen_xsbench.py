@@ -31,10 +31,8 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
             batch_size = len(calc_in)
             results = []
             for entry in calc_in:
-                results += [({'NUM_THREADS': entry['NUM_THREADS'][0],
-                              'BLOCK_SIZE': entry['BLOCK_SIZE'][0],
-                              'OMP_PARALLEL': entry['OMP_PARALLEL'][0]}, entry['RUN_TIME'])]
-
+                results.append({(entry['NUM_THREADS'][0], entry['BLOCK_SIZE'][0], entry['OMP_PARALLEL'][0]): entry['RUN_TIME']})
+            print('results: ', results)
             ytoptimizer.tell(results)
 
             ytopt_points = ytoptimizer.ask(n_points=batch_size)  # Returns a generator that we convert to a list
@@ -46,7 +44,7 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
             for key, value in entry.items():
                 H_o[i][key] = value
 
-        print('requesting:', H_o['BLOCK_SIZE'], flush=True)
+        # print('requesting:', H_o['BLOCK_SIZE'], flush=True)
         # This returns the requested points to the libE manager, which will
         # perform the sim_f evaluations and then give back the values.
         tag, Work, calc_in = ps.send_recv(H_o)
