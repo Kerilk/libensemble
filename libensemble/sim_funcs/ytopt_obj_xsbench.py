@@ -16,8 +16,8 @@ from plopper import Plopper
 
 def one_d_example(H, persis_info, sim_specs, libE_info):
     params = {
-        "NUM_THREADS": np.squeeze(H['NUM_THREADS']),
         "BLOCK_SIZE": np.squeeze(H['BLOCK_SIZE']),
+        "NUM_THREADS": np.squeeze(H['NUM_THREADS']),
         "OMP_PARALLEL": np.squeeze(H['OMP_PARALLEL'])
     }
     y = myobj(params, libE_info['workerID'])  # ytopt objective wants a dict
@@ -33,13 +33,13 @@ obj = Plopper('./mmp.c', './')
 def myobj(point: dict, workerID):
     def plopper_func(x):
         x = np.asarray_chkfinite(x)
-        value = [point['NUM_THREADS'], point['BLOCK_SIZE'], point['OMP_PARALLEL']]
-        params = ['NUM_THREADS', 'BLOCK_SIZE', 'OMP_PARALLEL']
+        value = [point['BLOCK_SIZE'], point['NUM_THREADS'], point['OMP_PARALLEL']]
+        params = ['BLOCK_SIZE', 'NUM_THREADS', 'OMP_PARALLEL']
         result = obj.findRuntime(value, params, workerID)
         return result
 
     # x = np.array([point[f'p{i}'] for i in range(len(point))])
-    x = np.array([point['NUM_THREADS'], point['BLOCK_SIZE'], point['OMP_PARALLEL']])
+    x = np.array([point['BLOCK_SIZE'], point['NUM_THREADS'], point['OMP_PARALLEL']])
     results = plopper_func(x)
     # print('CONFIG and OUTPUT', [point, results], flush=True)
     return results

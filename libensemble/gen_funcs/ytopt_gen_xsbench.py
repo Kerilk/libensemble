@@ -31,7 +31,9 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
             batch_size = len(calc_in)
             results = []
             for entry in calc_in:
-                results.append({(entry['NUM_THREADS'][0], entry['BLOCK_SIZE'][0], entry['OMP_PARALLEL'][0]): entry['RUN_TIME']})
+                # [({'BLOCK_SIZE': entry['BLOCK_SIZE'][0]}, entry['RUN_TIME'])]
+                # results.append({(entry['NUM_THREADS'][0], entry['BLOCK_SIZE'][0], entry['OMP_PARALLEL'][0]): entry['RUN_TIME']})
+                results += [({'BLOCK_SIZE': entry['BLOCK_SIZE'][0], 'NUM_THREADS': entry['NUM_THREADS'][0], 'OMP_PARALLEL': entry['OMP_PARALLEL'][0]}, entry['RUN_TIME'])]
             print('results: ', results)
             ytoptimizer.tell(results)
 
