@@ -1,7 +1,7 @@
 """
 This module is a wrapper around an example ytopt objective function
 """
-__all__ = ['one_d_example']
+__all__ = ['init_obj']
 
 import numpy as np
 # from autotune import TuningProblem
@@ -13,14 +13,13 @@ import numpy as np
 
 from plopper import Plopper
 
+def init_obj(H, persis_info, sim_specs, libE_info):
 
-def one_d_example(H, persis_info, sim_specs, libE_info):
-    params = {
-        "BLOCK_SIZE": np.squeeze(H['BLOCK_SIZE']),
-        "NUM_THREADS": np.squeeze(H['NUM_THREADS']),
-        "OMP_PARALLEL": np.squeeze(H['OMP_PARALLEL'])
-    }
-    y = myobj(params, libE_info['workerID'])  # ytopt objective wants a dict
+    params = {}
+    for field in sim_specs['in']:
+        params[field] = np.squeeze(H[field])
+
+    y = myobj(params, sim_specs['in'], libE_info['workerID'])  # ytopt objective wants a dict
     H_o = np.zeros(1, dtype=sim_specs['out'])
     H_o['RUN_TIME'] = y
 
@@ -30,16 +29,15 @@ def one_d_example(H, persis_info, sim_specs, libE_info):
 obj = Plopper('./mmp.c', './')
 
 
-def myobj(point: dict, workerID):
+def myobj(point: dict, fields, workerID):
     def plopper_func(x):
         x = np.asarray_chkfinite(x)
-        value = [point['BLOCK_SIZE'], point['NUM_THREADS'], point['OMP_PARALLEL']]
-        params = ['BLOCK_SIZE', 'NUM_THREADS', 'OMP_PARALLEL']
-        result = obj.findRuntime(value, params, workerID)
+        value = [point[field] for field in fields]
+        result = obj.findRuntime(value, fields, workerID)
         return result
 
     # x = np.array([point[f'p{i}'] for i in range(len(point))])
-    x = np.array([point['BLOCK_SIZE'], point['NUM_THREADS'], point['OMP_PARALLEL']])
+    x = np.array([point[field] for field in fields])
     results = plopper_func(x)
     # print('CONFIG and OUTPUT', [point, results], flush=True)
     return results
