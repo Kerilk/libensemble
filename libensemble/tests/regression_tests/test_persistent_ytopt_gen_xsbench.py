@@ -20,7 +20,7 @@ from libensemble.libE import libE
 from libensemble.sim_funcs.ytopt_obj_xsbench import init_obj as sim_f
 from libensemble.gen_funcs.ytopt_gen_xsbench import persistent_ytopt as gen_f
 from libensemble.alloc_funcs.start_only_persistent import only_persistent_gens as alloc_f
-from libensemble.tools import parse_args, save_libE_output, add_unique_random_streams
+from libensemble.tools import parse_args, save_libE_output
 
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
@@ -38,14 +38,20 @@ sim_specs = {
 
 # Initialize the ytopt ask/tell interface (to be used by the gen_f)
 cs = CS.ConfigurationSpace(seed=1234)
-BLOCK_SIZE= CSH.OrdinalHyperparameter(name='BLOCK_SIZE', sequence=[10,20,40,64,80,100,128,160,200], default_value=100)
-NUM_THREADS= CSH.UniformIntegerHyperparameter(name='NUM_THREADS', lower=4, upper=8, default_value=8)
-OMP_PARALLEL= CSH.CategoricalHyperparameter(name='OMP_PARALLEL', choices=["#pragma omp parallel for", " "], default_value=' ')
+BLOCK_SIZE = CSH.OrdinalHyperparameter(name='BLOCK_SIZE',
+                                       sequence=[10, 20, 40, 64, 80, 100, 128, 160, 200],
+                                       default_value=100)
+NUM_THREADS = CSH.UniformIntegerHyperparameter(name='NUM_THREADS',
+                                               lower=4, upper=8,
+                                               default_value=8)
+OMP_PARALLEL = CSH.CategoricalHyperparameter(name='OMP_PARALLEL',
+                                             choices=["#pragma omp parallel for", " "],
+                                             default_value=' ')
+
 cs.add_hyperparameters([BLOCK_SIZE, NUM_THREADS, OMP_PARALLEL])
-input_space = cs
 ytoptimizer = Optimizer(
     num_workers=num_sim_workers,
-    space=input_space,
+    space=cs,
     learner='RF',
     liar_strategy='cl_max',
     acq_func='gp_hedge',
