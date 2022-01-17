@@ -32,23 +32,19 @@ num_sim_workers = nworkers - 1  # Subtracting one because one worker will be the
 # Declare the sim_f to be optimized, and the input/outputs
 sim_specs = {
     'sim_f': sim_f,
-    'in': ['BLOCK_SIZE', 'NUM_THREADS', 'OMP_PARALLEL'],
+    'in': ['p0', 'p1', 'p2'],
     'out': [('RUN_TIME', float)],
 }
 
 # Initialize the ytopt ask/tell interface (to be used by the gen_f)
 cs = CS.ConfigurationSpace(seed=1234)
-BLOCK_SIZE = CSH.OrdinalHyperparameter(name='BLOCK_SIZE',
-                                       sequence=[10, 20, 40, 64, 80, 100, 128, 160, 200],
-                                       default_value=100)
-NUM_THREADS = CSH.UniformIntegerHyperparameter(name='NUM_THREADS',
-                                               lower=4, upper=8,
-                                               default_value=8)
-OMP_PARALLEL = CSH.CategoricalHyperparameter(name='OMP_PARALLEL',
-                                             choices=["#pragma omp parallel for", " "],
-                                             default_value=' ')
+p0 = CSH.OrdinalHyperparameter(name='p0', sequence=[10, 20, 40, 64, 80, 100, 128, 160, 200],
+                               default_value=100)
+p1 = CSH.UniformIntegerHyperparameter(name='p1', lower=4, upper=8, default_value=8)
+p2 = CSH.CategoricalHyperparameter(name='p2', choices=["#pragma omp parallel for", " "],
+                                   default_value=' ')
 
-cs.add_hyperparameters([BLOCK_SIZE, NUM_THREADS, OMP_PARALLEL])
+cs.add_hyperparameters([p0, p1, p2])
 ytoptimizer = Optimizer(
     num_workers=num_sim_workers,
     space=cs,
@@ -60,7 +56,7 @@ ytoptimizer = Optimizer(
 # Declare the gen_f that will generator points for the sim_f, and the various input/outputs
 gen_specs = {
     'gen_f': gen_f,
-    'out': [('BLOCK_SIZE', int, (1,)), ('NUM_THREADS', int, (1,)), ('OMP_PARALLEL', "<U25", (1,))],
+    'out': [('p0', int, (1,)), ('p1', int, (1,)), ('p2', "<U25", (1,))],
     'persis_in': sim_specs['in'] + ['RUN_TIME'],
     'user': {
         'ytoptimizer': ytoptimizer,
