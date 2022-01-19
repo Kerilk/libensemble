@@ -26,6 +26,7 @@ export CONDA_ENV_NAME=<conda_env_name>
 export PMI_NO_FORK=1 # Required for python kills on Theta
 
 # Unload Theta modules that may interfere with job monitoring/kills
+module load miniconda-3/latest
 module unload trackdeps
 module unload darshan
 module unload xalt
