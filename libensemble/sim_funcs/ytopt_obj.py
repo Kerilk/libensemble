@@ -11,7 +11,7 @@ import numpy as np
 # import ConfigSpace.hyperparameters as CSH
 # from skopt.space import Real, Integer, Categorical
 
-from plopper import Plopper
+from mmm_plopper import Plopper
 
 
 def one_d_example(x, persis_info, sim_specs, libE_info):

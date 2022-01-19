@@ -4,23 +4,16 @@ This module is a wrapper around an example ytopt objective function
 __all__ = ['init_obj']
 
 import numpy as np
-# from autotune import TuningProblem
-# from autotune.space import *
-# import os, sys, time, json, math
-# import ConfigSpace as CS
-# import ConfigSpace.hyperparameters as CSH
-# from skopt.space import Real, Integer, Categorical
-
-from plopper import Plopper
+from xsbench_plopper import Plopper
 
 
 def init_obj(H, persis_info, sim_specs, libE_info):
 
-    params = {}
+    point = {}
     for field in sim_specs['in']:
-        params[field] = np.squeeze(H[field])
+        point[field] = np.squeeze(H[field])
 
-    y = myobj(params, sim_specs['in'], libE_info['workerID'])  # ytopt objective wants a dict
+    y = myobj(point, sim_specs['in'], libE_info['workerID'])  # ytopt objective wants a dict
     H_o = np.zeros(1, dtype=sim_specs['out'])
     H_o['RUN_TIME'] = y
 
@@ -30,15 +23,15 @@ def init_obj(H, persis_info, sim_specs, libE_info):
 obj = Plopper('./mmp.c', './')
 
 
-def myobj(point: dict, fields, workerID):
-    def plopper_func(x):
+def myobj(point: dict, params: list, workerID: int):
+    def plopper_func(x, params):
         x = np.asarray_chkfinite(x)
-        value = [point[field] for field in fields]
-        result = obj.findRuntime(value, fields, workerID)
+        value = [point[param] for param in params]
+        params = [i.upper() for i in params]
+        result = obj.findRuntime(value, params, workerID)
         return result
 
-    # x = np.array([point[f'p{i}'] for i in range(len(point))])
-    x = np.array([point[field] for field in fields])
-    results = plopper_func(x)
+    x = np.array([point[f'p{i}'] for i in range(len(point))])
+    results = plopper_func(x, params)
     # print('CONFIG and OUTPUT', [point, results], flush=True)
     return results
