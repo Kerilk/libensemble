@@ -42,7 +42,7 @@ class Plopper:
 
 
     # Function to find the execution time of the interim file, and return the execution time as cost to the search module
-    def findRuntime(self, x, params):
+    def findRuntime(self, x, params, worker):
         interimfile = ""
         #exetime = float('inf')
         #exetime = sys.maxsize
@@ -57,7 +57,7 @@ class Plopper:
         self.plotValues(dictVal, self.sourcefile, interimfile)
 
         #compile and find the execution time
-        tmpbinary = interimfile[:-2]
+        tmpbinary = interimfile[:-2] + '_w' + str(worker)
 
         kernel_idx = self.sourcefile.rfind('/')
         kernel_dir = self.sourcefile[:kernel_idx]
@@ -83,4 +83,3 @@ class Plopper:
             print(compilation_status.stderr)
             print("compile failed")
         return exetime #return execution time as cost
-
