@@ -9,10 +9,6 @@ Execute via one of the following commands (e.g. 3 workers):
 The number of concurrent evaluations of the objective function will be 4-1=3.
 """
 
-# Do not change these lines - they are parsed by run-tests.sh
-# TESTSUITE_COMMS: mpi
-# TESTSUITE_NPROCS: 4
-
 import numpy as np
 
 # Import libEnsemble items for this test
@@ -36,21 +32,24 @@ sim_specs = {
     'out': [('RUN_TIME', float)],
 }
 
+cs = CS.ConfigurationSpace(seed=1234)
 # Initialize the ytopt ask/tell interface (to be used by the gen_f)
-p0= CSH.OrdinalHyperparameter(name='p0', sequence=[2,3,4,5,6,7,8], default_value=8)
-#block size for openmp dynamic schedule
-p1= CSH.OrdinalHyperparameter(name='p1', sequence=[10,20,40,64,80,100,128,160,200], default_value=100)
-#clang unrolling
-p2= CSH.CategoricalHyperparameter(name='p2', choices=["#pragma clang loop unrolling full", " "], default_value=' ')
-#omp parallel
-p3= CSH.CategoricalHyperparameter(name='p3', choices=["#pragma omp parallel for", " "], default_value=' ')
+p0 = CSH.OrdinalHyperparameter(name='p0', sequence=[2, 3, 4, 5, 6, 7, 8], default_value=8)
+# block size for openmp dynamic schedule
+p1 = CSH.OrdinalHyperparameter(name='p1', sequence=[10, 20, 40, 64, 80, 100, 128, 160, 200], default_value=100)
+# clang unrolling
+p2 = CSH.CategoricalHyperparameter(name='p2', choices=["#pragma clang loop unrolling full", " "], default_value=' ')
+# omp parallel
+p3 = CSH.CategoricalHyperparameter(name='p3', choices=["#pragma omp parallel for", " "], default_value=' ')
 # tile size for one dimension for 2D tiling
-p4= CSH.OrdinalHyperparameter(name='p4', sequence=[2,4,8,16,32,64,96,128,256], default_value=96)
+p4 = CSH.OrdinalHyperparameter(name='p4', sequence=[2, 4, 8, 16, 32, 64, 96, 128, 256], default_value=96)
 # tile size for another dimension for 2D tiling
-p5= CSH.OrdinalHyperparameter(name='p5', sequence=[2,4,8,16,32,64,96,128,256], default_value=256)
+p5 = CSH.OrdinalHyperparameter(name='p5', sequence=[2, 4, 8, 16, 32, 64, 96, 128, 256], default_value=256)
 # omp placement
-p6= CSH.CategoricalHyperparameter(name='p6', choices=['cores','threads','sockets'], default_value='cores')
-p7= CSH.CategoricalHyperparameter(name='p7', choices=['compact','scatter','balanced','none','disabled', 'explicit'], default_value='none')
+p6 = CSH.CategoricalHyperparameter(name='p6', choices=['cores', 'threads', 'sockets'], default_value='cores')
+p7 = CSH.CategoricalHyperparameter(name='p7',
+                                   choices=['compact', 'scatter', 'balanced', 'none', 'disabled', 'explicit'],
+                                   default_value='none')
 
 cs.add_hyperparameters([p0, p1, p2, p3, p4, p5, p6, p7])
 ytoptimizer = Optimizer(
