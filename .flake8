@@ -18,6 +18,7 @@ exclude =
         examples/sim_funcs/chwirut1.py
         libensemble/tests/scaling_tests/ytopt/plopper.py
         libensemble/tests/scaling_tests/ytopt/findMin.py
+        libensemble/tests/regression_tests/xsbench_plopper.py
 
 # Note that you can use wildcard exceptions with something such as
 # libensemble/libensemble/tests/regression_tests/*:F401
