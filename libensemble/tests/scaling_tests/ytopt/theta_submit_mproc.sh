@@ -9,7 +9,7 @@
 
 # To be run with central job management
 # - Manager and workers run on launch node.
-# - Workers submit tasks to the nodes in the job available.
+# - Workers submit tasks to the nodes in the job available (using exe.pl)
 
 # Name of calling script
 export EXE=run_ytopt_xsbench.py
@@ -36,6 +36,4 @@ export PYTHONNOUSERSITE=1
 conda activate $CONDA_ENV_NAME
 
 # Launch libE
-#python $EXE $NUM_WORKERS $LIBE_WALLCLOCK > out.txt 2>&1
-#python $EXE $NUM_WORKERS > out.txt 2>&1
 python $EXE $COMMS $NWORKERS > out.txt 2>&1

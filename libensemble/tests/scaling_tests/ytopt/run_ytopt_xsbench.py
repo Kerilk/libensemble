@@ -2,32 +2,46 @@
 Runs libEnsemble to call the ytopt ask/tell interface in a generator function,
 and the ytopt findRunTime interface in a simulator function.
 
-Execute via one of the following commands (e.g. 3 workers):
-   mpiexec -np 4 python3 test_persistent_ytopt_gen.py
-   python3 test_persistent_ytopt_gen.py --nworkers 3 --comms local
+Execute locally via one of the following commands (e.g. 3 workers):
+   mpiexec -np 4 python run_ytopt_xsbench.py
+   python trun_ytopt_xsbench.py --nworkers 3 --comms local
 
 The number of concurrent evaluations of the objective function will be 4-1=3.
 """
 
+import os
+import secrets
 import numpy as np
 
 # Import libEnsemble items for this test
 from libensemble.libE import libE
-from ytopt_obj import init_obj as sim_f
-from ytopt_asktell import persistent_ytopt as gen_f
 from libensemble.alloc_funcs.start_only_persistent import only_persistent_gens as alloc_f
 from libensemble.tools import parse_args, save_libE_output
+
+from ytopt_obj import init_obj  # Simulator function, calls Plopper
+from ytopt_asktell import persistent_ytopt  # Generator function, communicates with ytopt optimizer
 
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from ytopt.search.optimizer import Optimizer
 
+# Parse comms, default options from commandline
 nworkers, is_manager, libE_specs, _ = parse_args()
 num_sim_workers = nworkers - 1  # Subtracting one because one worker will be the generator
 
+# Set options so workers operate in unique directories
+here = os.getcwd() + '/'
+libE_specs['use_worker_dirs'] = True
+libE_specs['sim_dirs_make'] = False  # Otherwise directories separated by each sim call
+libE_specs['ensemble_dir_path'] = './ensemble_' + secrets.token_hex(nbytes=4)
+
+# Copy or symlink needed files into unique directories
+libE_specs['sim_dir_copy_files'] = [here + f for f in ['mmp.c', 'Materials.c', 'XSutils.c', 'XSbench_header.h']]
+libE_specs['sim_dir_symlink_files'] = [here + f for f in ['exe.pl', 'plopper.py']]
+
 # Declare the sim_f to be optimized, and the input/outputs
 sim_specs = {
-    'sim_f': sim_f,
+    'sim_f': init_obj,
     'in': ['p0', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'],
     'out': [('RUN_TIME', float)],
 }
@@ -60,14 +74,14 @@ ytoptimizer = Optimizer(
     acq_func='gp_hedge',
 )
 
-# Declare the gen_f that will generator points for the sim_f, and the various input/outputs
+# Declare the gen_f that will generate points for the sim_f, and the various input/outputs
 gen_specs = {
-    'gen_f': gen_f,
+    'gen_f': persistent_ytopt,
     'out': [('p0', int, (1,)), ('p1', int, (1,)), ('p2', "<U34", (1,)), ('p3', "<U24", (1,)),
             ('p4', int, (1,)), ('p5', int, (1,)), ('p6', "<U7", (1,)), ('p7', "<U8", (1,)), ],
     'persis_in': sim_specs['in'] + ['RUN_TIME'],
     'user': {
-        'ytoptimizer': ytoptimizer,
+        'ytoptimizer': ytoptimizer,  # provide optimizer to generator function
         'num_sim_workers': num_sim_workers,
     },
 }
@@ -77,12 +91,14 @@ alloc_specs = {
     'user': {'async_return': True},
 }
 
-exit_criteria = {'sim_max': 100}
+# Specify when to exit. More options: https://libensemble.readthedocs.io/en/main/data_structures/exit_criteria.html
+exit_criteria = {'gen_max': 100}
 
 # Perform the libE run
 H, persis_info, flag = libE(sim_specs, gen_specs, exit_criteria, alloc_specs=alloc_specs, libE_specs=libE_specs)
 
+# Save History array to file
 if is_manager:
-    assert np.sum(H['returned']) == exit_criteria['sim_max']
-    print("\nlibEnsemble has perform the correct number of evaluations")
+    assert np.sum(H['returned']) == exit_criteria['gen_max']
+    print("\nlibEnsemble has requested the correct number of evaluations")
     save_libE_output(H, persis_info, __file__, nworkers)
