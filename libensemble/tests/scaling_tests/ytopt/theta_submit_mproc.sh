@@ -1,6 +1,6 @@
 #!/bin/bash -x
 #COBALT -t 00:30:00
-#COBALT -n 4
+#COBALT -n 8
 #COBALT -q debug-cache-quad
 #COBALT -A <project code>
 
@@ -18,7 +18,7 @@ export EXE=run_ytopt_xsbench.py
 export COMMS="--comms local"
 
 # Number of workers.
-export NWORKERS="--nworkers 4"
+export NWORKERS="--nworkers 9"  # extra worker running generator (no resources needed)
 
 # Name of Conda environment
 export CONDA_ENV_NAME=<conda_env_name>

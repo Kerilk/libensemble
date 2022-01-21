@@ -20,11 +20,9 @@ def init_obj(H, persis_info, sim_specs, libE_info):
     return H_o, persis_info
 
 
-obj = Plopper('./mmp.c', './')
-
-
 def myobj(point: dict, params: list, workerID: int):
     def plopper_func(x, params):
+        obj = Plopper('./mmp.c', './')
         x = np.asarray_chkfinite(x)
         value = [point[param] for param in params]
         params = [i.upper() for i in params]
