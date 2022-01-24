@@ -16,7 +16,7 @@ import numpy as np
 # Import libEnsemble items for this test
 from libensemble.libE import libE
 from libensemble.alloc_funcs.start_only_persistent import only_persistent_gens as alloc_f
-from libensemble.tools import parse_args, save_libE_output
+from libensemble.tools import parse_args, save_libE_output, add_unique_random_streams
 
 from ytopt_obj import init_obj  # Simulator function, calls Plopper
 from ytopt_asktell import persistent_ytopt  # Generator function, communicates with ytopt optimizer
@@ -94,8 +94,12 @@ alloc_specs = {
 # Specify when to exit. More options: https://libensemble.readthedocs.io/en/main/data_structures/exit_criteria.html
 exit_criteria = {'gen_max': 100}
 
+# Added as a workaround to issue that's been resolved on develop
+persis_info = add_unique_random_streams({}, nworkers + 1)
+
 # Perform the libE run
-H, persis_info, flag = libE(sim_specs, gen_specs, exit_criteria, alloc_specs=alloc_specs, libE_specs=libE_specs)
+H, persis_info, flag = libE(sim_specs, gen_specs, exit_criteria, persis_info,
+                            alloc_specs=alloc_specs, libE_specs=libE_specs)
 
 # Save History array to file
 if is_manager:
