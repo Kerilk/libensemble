@@ -26,7 +26,16 @@ import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from ytopt.search.optimizer import Optimizer
 
-nworkers, is_manager, libE_specs, _ = parse_args()
+nworkers, is_manager, libE_specs, user_args_in = parse_args()
+if len(user_args_in):
+    user_args = {}
+    for entry in user_args_in:
+        sp = entry.split('=')
+        assert len(sp) == 2, "Incorrect arg format"
+        field = sp[0]
+        value = sp[1]
+        user_args[field] = value
+
 num_sim_workers = nworkers - 1  # Subtracting one because one worker will be the generator
 
 # Declare the sim_f to be optimized, and the input/outputs
@@ -48,7 +57,7 @@ cs.add_hyperparameters([p0, p1, p2])
 ytoptimizer = Optimizer(
     num_workers=num_sim_workers,
     space=cs,
-    learner='RF',
+    learner=user_args['learner'],
     liar_strategy='cl_max',
     acq_func='gp_hedge',
 )
@@ -78,3 +87,11 @@ if is_manager:
     assert np.sum(H['returned']) == exit_criteria['sim_max']
     print("\nlibEnsemble has perform the correct number of evaluations")
     save_libE_output(H, persis_info, __file__, nworkers)
+
+    print("\nSaving just sim_specs[['in','out']] to a CSV")
+    if is_manager: 
+        H = np.load('persistent_ytopt_gen_xsbench_history_length=10_evals=10_workers=4.npy')
+        dtypes = H[gen_specs['persis_in']].dtype
+        b = np.vstack(map(list, H[gen_specs['persis_in']]))
+        print(b)
+        np.savetxt('Output.csv',b, header=','.join(dtypes.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
