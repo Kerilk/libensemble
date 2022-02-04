@@ -13,9 +13,8 @@ foreach $filename (@ARGV) {
    @nn = (1..$nmax);
    for(@nn) {
     $retval = gettimeofday( );
-    # 16 MPI ranks total, 8 ranks per node, 1 thread per rank, 1 thread
-    # aprun splits this into 2 nodes (16 ranks / 8 ranks-per-node)
-    system("aprun -n 16 -N 8 -d 1 -j 1 $filename >/dev/null 2>&1");
+    # 8 MPI ranks total, 8 ranks per node (1 node)
+    system("aprun -n 8 -N 8 $filename >/dev/null 2>&1");
     $tt = gettimeofday( );
     $ttotal = $tt - $retval;
     $ssum = $ssum + $ttotal;
