@@ -35,7 +35,7 @@ if len(user_args_in):
         assert len(sp) == 2, "Incorrect arg format"
         field = sp[0]
         value = sp[1]
-        user_args[field] = valuenum_sim_workers = nworkers - 1  # Subtracting one because one worker will be the generator
+        user_args[field] = value
 
 # Set options so workers operate in unique directories
 here = os.getcwd() + '/'
