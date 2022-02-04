@@ -17,8 +17,10 @@ export EXE=run_ytopt_xsbench.py
 # Communication Method
 export COMMS="--comms local"
 
-# Number of workers.
+# Number of workers. For multiple nodes per worker, have nworkers be a divisor of nnodes, then add 1
+# e.g. for 2 nodes per worker, set nnodes = 12, nworkers = 7
 export NWORKERS="--nworkers 9"  # extra worker running generator (no resources needed)
+# Adjust exe.pl so workers correctly use their resources
 
 # Name of Conda environment
 export CONDA_ENV_NAME=<conda_env_name>
