@@ -26,8 +26,16 @@ import ConfigSpace.hyperparameters as CSH
 from ytopt.search.optimizer import Optimizer
 
 # Parse comms, default options from commandline
-nworkers, is_manager, libE_specs, _ = parse_args()
+nworkers, is_manager, libE_specs, user_args_in = parse_args()
 num_sim_workers = nworkers - 1  # Subtracting one because one worker will be the generator
+if len(user_args_in):
+    user_args = {}
+    for entry in user_args_in:
+        sp = entry.split('=')
+        assert len(sp) == 2, "Incorrect arg format"
+        field = sp[0]
+        value = sp[1]
+        user_args[field] = valuenum_sim_workers = nworkers - 1  # Subtracting one because one worker will be the generator
 
 # Set options so workers operate in unique directories
 here = os.getcwd() + '/'
@@ -103,6 +111,14 @@ H, persis_info, flag = libE(sim_specs, gen_specs, exit_criteria, persis_info,
 
 # Save History array to file
 if is_manager:
-    assert np.sum(H['returned']) == exit_criteria['gen_max']
-    print("\nlibEnsemble has requested the correct number of evaluations")
+    assert np.sum(H['returned']) == exit_criteria['sim_max']
+    print("\nlibEnsemble has perform the correct number of evaluations")
     save_libE_output(H, persis_info, __file__, nworkers)
+
+    print("\nSaving just sim_specs[['in','out']] to a CSV")
+    if is_manager:
+        H = np.load('persistent_ytopt_gen_xsbench_history_length=10_evals=10_workers=4.npy')
+        dtypes = H[gen_specs['persis_in']].dtype
+        b = np.vstack(map(list, H[gen_specs['persis_in']]))
+        print(b)
+        np.savetxt('Output.csv',b, header=','.join(dtypes.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))s)
