@@ -10,6 +10,7 @@ The number of concurrent evaluations of the objective function will be 4-1=3.
 """
 
 import os
+import glob
 import secrets
 import numpy as np
 
@@ -116,9 +117,8 @@ if is_manager:
     save_libE_output(H, persis_info, __file__, nworkers)
 
     print("\nSaving just sim_specs[['in','out']] to a CSV")
-    if is_manager:
-        H = np.load('persistent_ytopt_gen_xsbench_history_length=10_evals=10_workers=4.npy')
-        dtypes = H[gen_specs['persis_in']].dtype
-        b = np.vstack(map(list, H[gen_specs['persis_in']]))
-        print(b)
-        np.savetxt('Output.csv',b, header=','.join(dtypes.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
+    H = np.load(glob.glob('*.npy')[0])
+    dtypes = H[gen_specs['persis_in']].dtype
+    b = np.vstack(map(list, H[gen_specs['persis_in']]))
+    print(b)
+    np.savetxt('Output.csv',b, header=','.join(dtypes.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
