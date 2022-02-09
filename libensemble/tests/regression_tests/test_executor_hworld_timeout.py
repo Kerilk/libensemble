@@ -62,7 +62,10 @@ sim_specs = {
     'sim_f': sim_f,
     'in': ['x'],
     'out': [('f', float), ('cstat', int)],
-    'user': {'cores': cores_per_task, 'elapsed_timeout': True},
+    'user': {
+        'cores': cores_per_task,
+        'elapsed_timeout': True,
+    },
 }
 
 gen_specs = {
