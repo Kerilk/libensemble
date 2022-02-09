@@ -78,7 +78,7 @@ cs.add_hyperparameters([p0, p1, p2, p3, p4, p5, p6, p7])
 ytoptimizer = Optimizer(
     num_workers=num_sim_workers,
     space=cs,
-    learner='RF',
+    learner=user_args['learner'],
     liar_strategy='cl_max',
     acq_func='gp_hedge',
 )
