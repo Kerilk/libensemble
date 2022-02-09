@@ -111,7 +111,7 @@ H, persis_info, flag = libE(sim_specs, gen_specs, exit_criteria, persis_info,
 
 # Save History array to file
 if is_manager:
-    assert np.sum(H['returned']) == exit_criteria['sim_max']
+    assert np.sum(H['returned']) == exit_criteria['gen_max']
     print("\nlibEnsemble has perform the correct number of evaluations")
     save_libE_output(H, persis_info, __file__, nworkers)
 
