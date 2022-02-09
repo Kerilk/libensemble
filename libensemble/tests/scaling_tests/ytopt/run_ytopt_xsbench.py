@@ -100,7 +100,7 @@ alloc_specs = {
 }
 
 # Specify when to exit. More options: https://libensemble.readthedocs.io/en/main/data_structures/exit_criteria.html
-exit_criteria = {'gen_max': 100}
+exit_criteria = {'sim_max': 100}
 
 # Added as a workaround to issue that's been resolved on develop
 persis_info = add_unique_random_streams({}, nworkers + 1)
@@ -111,7 +111,7 @@ H, persis_info, flag = libE(sim_specs, gen_specs, exit_criteria, persis_info,
 
 # Save History array to file
 if is_manager:
-    assert np.sum(H['returned']) == exit_criteria['gen_max']
+    assert np.sum(H['returned']) == exit_criteria['sim_max']
     print("\nlibEnsemble has perform the correct number of evaluations")
     save_libE_output(H, persis_info, __file__, nworkers)
 
