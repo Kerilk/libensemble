@@ -38,4 +38,4 @@ export PYTHONNOUSERSITE=1
 conda activate $CONDA_ENV_NAME
 
 # Launch libE
-python $EXE $COMMS $NWORKERS > out.txt 2>&1
+python $EXE $COMMS $NWORKERS --learner=RF > out.txt 2>&1
