@@ -29,14 +29,24 @@ from ytopt.search.optimizer import Optimizer
 # Parse comms, default options from commandline
 nworkers, is_manager, libE_specs, user_args_in = parse_args()
 num_sim_workers = nworkers - 1  # Subtracting one because one worker will be the generator
-if len(user_args_in):
-    user_args = {}
-    for entry in user_args_in:
-        sp = entry.split('=')
-        assert len(sp) == 2, "Incorrect arg format"
-        field = sp[0]
-        value = sp[1]
-        user_args[field] = value
+
+assert len(user_args_in), "learner, etc. not specified, e.g. --learner RF"
+user_args = {}
+for entry in user_args_in:
+    if entry.startswith('--'):
+        if '=' not in entry:
+            key = entry.strip('--')
+            value = user_args_in[user_args_in.index(entry)+1]
+        else:
+            split = entry.split('=')
+            key = split[0].strip('--')
+            value = split[1]
+
+    user_args[key] = value
+
+req_settings = ['learner']
+assert all([opt in user_args for opt in req_settings]), \
+    "Required settings missing. Specify each setting in " + str(req_settings)
 
 # Set options so workers operate in unique directories
 here = os.getcwd() + '/'
