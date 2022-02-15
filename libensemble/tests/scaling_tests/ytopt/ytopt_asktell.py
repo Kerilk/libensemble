@@ -53,7 +53,7 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
         tag, Work, calc_in = ps.send_recv(H_o)
         print('received:', calc_in, flush=True)
 
-        if calc_in:
+        if calc_in is not None:
             if len(calc_in):
                 b = np.vstack(map(list, calc_in))
                 with open('output.csv', 'a') as f:
