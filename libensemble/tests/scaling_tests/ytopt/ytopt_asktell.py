@@ -53,13 +53,14 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
         tag, Work, calc_in = ps.send_recv(H_o)
         print('received:', calc_in, flush=True)
 
-        if len(calc_in):
-            b = np.vstack(map(list, calc_in))
-            with open('output.csv', 'a') as f:
-                if first_write:
-                    np.savetxt(f, b, header=','.join(calc_in.dtype.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
-                    first_write = False
-                else:
-                    np.savetxt(f, b, delimiter=',',fmt=','.join(['%s']*b.shape[1]))
+        if calc_in:
+            if len(calc_in):
+                b = np.vstack(map(list, calc_in))
+                with open('output.csv', 'a') as f:
+                    if first_write:
+                        np.savetxt(f, b, header=','.join(calc_in.dtype.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
+                        first_write = False
+                    else:
+                        np.savetxt(f, b, delimiter=',',fmt=','.join(['%s']*b.shape[1]))
 
     return H_o, persis_info, FINISHED_PERSISTENT_GEN_TAG
