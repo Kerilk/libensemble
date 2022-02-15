@@ -18,6 +18,7 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
     tag = None
     calc_in = None
     first_call = True
+    first_write = True
     fields = [i[0] for i in gen_specs['out']]
 
     # Send batches until manager sends stop tag
@@ -55,6 +56,10 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
         if len(calc_in):
             b = np.vstack(map(list, calc_in))
             with open('output.csv', 'a') as f:
-                np.savetxt(f, b, header=','.join(calc_in.dtype.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
+                if first_write:
+                    np.savetxt(f, b, header=','.join(calc_in.dtype.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
+                    first_write = False
+                else:
+                    np.savetxt(f, b, delimiter=',',fmt=','.join(['%s']*b.shape[1]))
 
     return H_o, persis_info, FINISHED_PERSISTENT_GEN_TAG
