@@ -210,6 +210,6 @@ def parse_args():
     if args.pwd is not None:
         os.chdir(args.pwd)
     nworkers, is_manager, libE_specs, tester_args = front_ends[args.comms or 'mpi'](args)
-    if is_manager and unknown:
-        logger.warning('parse_args ignoring unrecognized arguments: {}'.format(' '.join(unknown)))
+    # if is_manager and unknown:
+    #     logger.warning('parse_args ignoring unrecognized arguments: {}'.format(' '.join(unknown)))
     return nworkers, is_manager, libE_specs, unknown
