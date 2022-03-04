@@ -91,6 +91,7 @@ if is_manager:
     print("\nSaving just sim_specs[['in','out']] to a CSV")
     if is_manager: 
         H = np.load('persistent_ytopt_gen_xsbench_history_length=10_evals=10_workers=4.npy')
+        H = H[H['returned']]
         dtypes = H[gen_specs['persis_in']].dtype
         b = np.vstack(map(list, H[gen_specs['persis_in']]))
         print(b)
