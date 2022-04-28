@@ -65,11 +65,8 @@ which will attempt to use all hyperthreads/SMT threads available if set to ``Tru
 **FileExistsError: [Errno 17] File exists: './ensemble'**
 
 This can happen when libEnsemble tries to create ensemble or simulation directories
-that already exist.
-
-To create uniquely-named ensemble directories, set the ``ensemble_dir_suffix``
-option in :doc:`libE_specs<history_output_logging>` to some unique value.
-Alternatively, append some unique value to ``libE_specs['ensemble_dir']``
+that already exist from previous runs. To avoid this, ensure the ensemble directory
+paths are unique by appending some unique value to ``libE_specs['ensemble_dir_path']``
 
 **PETSc and MPI errors with "[unset]: write_line error; fd=-1 buf=:cmd=abort exitcode=59"**
 
@@ -136,7 +133,7 @@ For more information see https://bitbucket.org/mpi4py/mpi4py/issues/102/unpickli
 This error has been encountered on Cori when running with an incorrect installation of ``mpi4py``.
 Make sure platform specific instructions are followed (e.g.~ :doc:`Cori<platforms/cori>`)
 
-**srun: Job ****** step creation temporarily disabled, retrying (Requested nodes are busy)**
+**srun: Job \*\*\*\*\*\* step creation temporarily disabled, retrying (Requested nodes are busy)**
 
 You may also see: ``srun: Job ****** step creation still disabled, retrying (Requested nodes are busy)``
 
@@ -149,7 +146,12 @@ that is already dedicated to another task. The reason can vary, some reasons are
 - All the memory is assigned to the first job-step (srun application), due to a default
   exclusive mode scheduling policy. This has been observed on `Perlmutter`_ and `SDF`_.
 
-  This can be resolved by limiting the memory and other
+  In some cases using these environment variables will stop the issue::
+
+    export SLURM_EXACT=1
+    export SLURM_MEM_PER_NODE=0
+
+  Alternatively, this can be resolved by limiting the memory and other
   resources given to each task using the ``--exact`` `option to srun`_ along with other
   relevant options. For example::
 
@@ -164,7 +166,7 @@ that is already dedicated to another task. The reason can vary, some reasons are
   resources for both the libEnsemble manager and workers and the launched tasks. If this is
   complicated, we recommended using a :doc:`dedicated node for libEnsemble<platforms/platforms_index>`.
 
-.. _option to srun: https://docs.nersc.gov/jobs/examples/#single-gpu-tasks-in-parallel
+.. _option to srun: https://docs.nersc.gov/systems/perlmutter/running-jobs/#single-gpu-tasks-in-parallel
 .. _Perlmutter: https://docs.nersc.gov/systems/perlmutter
 .. _SDF: https://sdf.slac.stanford.edu/public/doc/#/?id=what-is-the-sdf
 
@@ -205,6 +207,19 @@ dictionaries will be dumped. This can be suppressed by
 setting ``libE_specs['save_H_and_persis_on_abort']`` to ``False``.
 
 See :doc:`here<history_output_logging>` for more information about these files.
+
+**How can I silence libEnsemble or prevent printed warnings?**
+
+Some logger messages at or above the ``MANAGER_WARNING`` level are mirrored
+to stderr automatically. To disable this, set the minimum stderr displaying level
+to ``CRITICAL`` via the following::
+
+    from libensemble import logger
+    logger.set_stderr_level('CRITICAL')
+
+This effectively puts libEnsemble in silent mode.
+
+See the :ref:`Logger Configuration<logger_config>` docs for more information.
 
 macOS-Specific Errors
 ---------------------

@@ -116,6 +116,14 @@ Specifications for libEnsemble::
             The allowable fields are given below in 'Overriding Auto-detection'
             Note that if ``disable_resource_manager`` is set then
             this option is ignored.
+        'scheduler_opts' [dict]:
+            A dictionary of options for the resource scheduler.
+            See 'Scheduler Options' for more.
+
+Scheduler Options
+-----------------
+
+See options for :ref:`built-in scheduler<resources-scheduler>`.
 
 .. _resource_info:
 
@@ -124,7 +132,7 @@ Overriding Auto-detection
 
 The allowable fields are::
 
-    'cores_on_node' [tuple (int,int)]:
+    'cores_on_node' [tuple (int, int)]:
         Tuple (physical cores, logical cores) on nodes.
     'node_file' [string]:
         Name of file containing a node-list. Default is 'node_list'.

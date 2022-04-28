@@ -25,7 +25,7 @@
 Introduction to libEnsemble
 ===========================
 
-libEnsemble is a Python_ toolkit for coordinating asynchronous and dynamic ensembles of calculations.
+libEnsemble is a Python_ toolkit for coordinating workflows of asynchronous and dynamic ensembles of calculations.
 
 libEnsemble can help users take advantage of massively parallel resources to solve design,
 decision, and inference problems and expand the class of problems that can benefit from
@@ -82,10 +82,9 @@ Optional dependencies:
 
 * Balsam_
 
-If running on the the compute nodes of three-tier systems
-like OLCF's Summit_ or ALCF's Theta_, libEnsemble's workers may use the Balsam service
-to schedule and launch MPI applications. Otherwise, libEnsemble can be run with
-multiprocessing on the intermediate launch nodes.
+As of v0.8.0+dev, libEnsemble features an updated `Balsam Executor`_
+for workers to schedule and launch applications to *anywhere* with a running
+Balsam site, including to remote machines.
 
 * pyyaml_
 
@@ -256,7 +255,9 @@ Resources
     doi     = {10.1109/tpds.2021.3082815}
   }
 
-**Capabilities:**
+**Example Compatible Packages**
+
+.. before_examples_rst_tag
 
 libEnsemble and the `Community Examples repository`_ include example generator
 functions for the following libraries:
@@ -294,7 +295,8 @@ See a complete list of `example user scripts`_.
 .. _across: https://libensemble.readthedocs.io/en/develop/platforms/platforms_index.html#funcx-remote-user-functions
 .. _APOSMM: https://link.springer.com/article/10.1007/s12532-017-0131-4
 .. _AWA: https://link.springer.com/article/10.1007/s12532-017-0131-4
-.. _Balsam: https://www.alcf.anl.gov/support-center/theta/balsam
+.. _Balsam: https://balsam.readthedocs.io/en/latest/
+.. _Balsam Executor: https://libensemble.readthedocs.io/en/develop/executor/balsam_2_executor.html
 .. _Community Examples repository: https://github.com/Libensemble/libe-community-examples
 .. _Conda: https://docs.conda.io/en/latest/
 .. _conda-forge: https://conda-forge.org/
@@ -341,7 +343,7 @@ See a complete list of `example user scripts`_.
 .. _Tasmanian: https://tasmanian.ornl.gov/
 .. _Theta: https://www.alcf.anl.gov/alcf-resources/theta
 .. _user guide: https://libensemble.readthedocs.io/en/latest/programming_libE.html
-.. _VTMOP: https://informs-sim.org/wsc20papers/311.pdf
+.. _VTMOP: https://github.com/Libensemble/libe-community-examples#vtmop
 .. _WarpX: https://warpx.readthedocs.io/en/latest/
 .. _WarpX + libE scripts: https://warpx.readthedocs.io/en/latest/usage/workflows/libensemble.html
 .. _xSDK Extreme-scale Scientific Software Development Kit: https://xsdk.info

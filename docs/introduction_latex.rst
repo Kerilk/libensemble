@@ -25,11 +25,12 @@ We now present further information on running and testing libEnsemble.
 .. _across: https://libensemble.readthedocs.io/en/develop/platforms/platforms_index.html#funcx-remote-user-functions
 .. _APOSMM: https://link.springer.com/article/10.1007/s12532-017-0131-4
 .. _AWA: https://link.springer.com/article/10.1007/s12532-017-0131-4
-.. _Balsam: https://www.alcf.anl.gov/support-center/theta/balsam
+.. _Balsam: https://balsam.readthedocs.io/en/latest/
+.. _Balsam Executor: https://libensemble.readthedocs.io/en/develop/executor/balsam_2_executor.html
 .. _Community Examples repository: https://github.com/Libensemble/libe-community-examples
 .. _Conda: https://docs.conda.io/en/latest/
 .. _conda-forge: https://conda-forge.org/
-.. _Coveralls: https://coveralls.io/github/Libensemble/libensemble?branch=master
+.. _Coveralls: https://coveralls.io/github/Libensemble/libensemble?branch=main
 .. _DEAP: https://deap.readthedocs.io/en/master/overview.html
 .. _DFO-LS: https://github.com/numericalalgorithmsgroup/dfols
 .. _ECNoise: https://www.mcs.anl.gov/~wild/cnoise/

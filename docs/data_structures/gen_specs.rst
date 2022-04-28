@@ -23,16 +23,16 @@ to main ``libE()`` routine::
 .. note::
 
   * The user may define fields only in ``'user'`` to be passed to the generator function.
-  * The tuples defined in the 'out' list are entered into the master :ref:`history array<datastruct-history-array>`.
+  * The tuples defined in the 'out' list are entered into the manager's :ref:`history array<datastruct-history-array>`.
   * The generator ``'out'`` field will usually include variable(s) appearing as a simulator 'in' field,
     in which case only the variable name is required for the simulator ``'in'``
     field. The example below, matches the corresponding
-    :ref:`sim_specs example<sim-specs-exmple1>`, where ``'x'`` is defined in the gen_specs ``'out'`` field to give
+    :ref:`sim_specs example<sim-specs-example1>`, where ``'x'`` is defined in the gen_specs ``'out'`` field to give
     two-dimensional floats.
 
 .. seealso::
 
-  .. _gen-specs-exmple1:
+  .. _gen-specs-example1:
 
   - test_uniform_sampling.py_ In this example, the
     generation function ``uniform_random_sample`` in sampling.py_ will generate 500 random
