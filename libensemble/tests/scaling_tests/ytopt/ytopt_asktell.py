@@ -56,7 +56,7 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
         if calc_in is not None:
             if len(calc_in):
                 b = np.vstack(map(list, calc_in))
-                with open('output.csv', 'a') as f:
+                with open('../../output.csv', 'a') as f:
                     if first_write:
                         np.savetxt(f, b, header=','.join(calc_in.dtype.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
                         first_write = False

@@ -117,13 +117,13 @@ H, persis_info, flag = libE(sim_specs, gen_specs, exit_criteria, persis_info,
 # Save History array to file
 if is_manager:
     print("\nlibEnsemble has completed evaluations.")
-    #save_libE_output(H, persis_info, __file__, nworkers)
+    save_libE_output(H, persis_info, __file__, nworkers)
 
-    #print("\nSaving just sim_specs[['in','out']] to a CSV")
-    #H = np.load(glob.glob('*.npy')[0])
-    #H = H[H["sim_ended"]]
-    #H = H[H["returned"]]
-    #dtypes = H[gen_specs['persis_in']].dtype
-    #b = np.vstack(map(list, H[gen_specs['persis_in']]))
-    #print(b)
-    #np.savetxt('results.csv',b, header=','.join(dtypes.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
+    print("\nSaving just sim_specs[['in','out']] to a CSV")
+    H = np.load(glob.glob('*.npy')[0])
+    H = H[H["sim_ended"]]
+    H = H[H["returned"]]
+    dtypes = H[gen_specs['persis_in']].dtype
+    b = np.vstack(map(list, H[gen_specs['persis_in']]))
+    print(b)
+    np.savetxt('results.csv',b, header=','.join(dtypes.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
