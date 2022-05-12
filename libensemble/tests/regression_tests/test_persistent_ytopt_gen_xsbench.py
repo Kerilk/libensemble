@@ -84,14 +84,14 @@ exit_criteria = {'sim_max': 10}
 H, persis_info, flag = libE(sim_specs, gen_specs, exit_criteria, alloc_specs=alloc_specs, libE_specs=libE_specs)
 
 if is_manager:
-    assert np.sum(H['returned']) == exit_criteria['sim_max']
+    assert np.sum(H['sim_ended']) == exit_criteria['sim_max']
     print("\nlibEnsemble has perform the correct number of evaluations")
     save_libE_output(H, persis_info, __file__, nworkers)
 
     print("\nSaving just sim_specs[['in','out']] to a CSV")
     if is_manager: 
         H = np.load('persistent_ytopt_gen_xsbench_history_length=10_evals=10_workers=4.npy')
-        H = H[H['returned']]
+        H = H[H['sim_ended']]
         dtypes = H[gen_specs['persis_in']].dtype
         b = np.vstack(map(list, H[gen_specs['persis_in']]))
         print(b)
