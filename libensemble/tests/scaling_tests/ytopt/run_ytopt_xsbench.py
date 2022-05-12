@@ -125,5 +125,5 @@ if is_manager:
     H = H[H["returned"]]
     dtypes = H[gen_specs['persis_in']].dtype
     b = np.vstack(map(list, H[gen_specs['persis_in']]))
-    print(b)
+    #print(b)
     np.savetxt('results.csv',b, header=','.join(dtypes.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
