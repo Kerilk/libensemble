@@ -121,8 +121,8 @@ if is_manager:
 
     print("\nSaving just sim_specs[['in','out']] to a CSV")
     H = np.load(glob.glob('*.npy')[0])
-    #H = H[H["sim_ended"]]
-    H = H[H["returned"]]
+    H = H[H["sim_ended"]]
+    #H = H[H["returned"]]
     dtypes = H[gen_specs['persis_in']].dtype
     b = np.vstack(map(list, H[gen_specs['persis_in']]))
     #print(b)
