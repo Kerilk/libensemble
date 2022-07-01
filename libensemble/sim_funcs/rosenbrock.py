@@ -102,6 +102,6 @@ def rosenbrock_eval_2(H, persis_info, sim_specs, _):
 
     x = np.array([H["p0"][0], H["p1"][0]])
 
-    H_o["RUN_TIME"] = EvaluateFunction(x, np.nan)
+    H_o["RUN_TIME"] = H["p0"][0] + H["p1"][0]
 
     return H_o, persis_info
