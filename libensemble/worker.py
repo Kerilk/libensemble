@@ -17,7 +17,9 @@ from libensemble.message_numbers import MAN_SIGNAL_FINISH, MAN_SIGNAL_KILL
 from libensemble.message_numbers import calc_type_strings, calc_status_strings
 from libensemble.output_directory import EnsembleDirectory
 
+from libensemble.utils.misc import extract_H_ranges
 from libensemble.utils.timer import Timer
+from libensemble.utils.runners import make_runners
 from libensemble.executors.executor import Executor
 from libensemble.resources.resources import Resources
 from libensemble.comms.logs import worker_logging_config
@@ -31,7 +33,7 @@ logger = logging.getLogger(__name__)
 task_timing = False
 
 
-def worker_main(comm, sim_specs, gen_specs, libE_specs, workerID=None, log_comm=True):
+def worker_main(comm, sim_specs, gen_specs, libE_specs, workerID=None, log_comm=True, resources=None, executor=None):
     """Evaluates calculations given to it by the manager.
 
     Creates a worker object, receives work from manager, runs worker,
@@ -62,6 +64,12 @@ def worker_main(comm, sim_specs, gen_specs, libE_specs, workerID=None, log_comm=
     if libE_specs.get("profile"):
         pr = cProfile.Profile()
         pr.enable()
+
+    # If resources / executor passed in, then use those.
+    if resources is not None:
+        Resources.resources = resources
+    if executor is not None:
+        Executor.executor = executor
 
     # Receive dtypes from manager
     _, dtypes = comm.recv()
@@ -125,72 +133,13 @@ class Worker:
         self.dtypes = dtypes
         self.workerID = workerID
         self.libE_specs = libE_specs
+        self.stats_fmt = libE_specs.get("stats_fmt", {})
+
         self.calc_iter = {EVAL_SIM_TAG: 0, EVAL_GEN_TAG: 0}
-        self._run_calc = Worker._make_runners(sim_specs, gen_specs)
+        self._run_calc = make_runners(sim_specs, gen_specs)
         Worker._set_executor(self.workerID, self.comm)
         Worker._set_resources(self.workerID, self.comm)
         self.EnsembleDirectory = EnsembleDirectory(libE_specs=libE_specs)
-
-    @staticmethod
-    def _funcx_result(funcx_exctr, user_f, calc_in, persis_info, specs, libE_info):
-        libE_info["comm"] = None  # 'comm' object not pickle-able
-        Worker._set_executor(0, None)  # ditto for executor
-
-        future = funcx_exctr.submit(user_f, calc_in, persis_info, specs, libE_info, endpoint_id=specs["funcx_endpoint"])
-        remote_exc = future.exception()  # blocks until exception or None
-        if remote_exc is None:
-            return future.result()
-        else:
-            raise remote_exc
-
-    @staticmethod
-    def _get_funcx_exctr(sim_specs, gen_specs):
-        funcx_sim = len(sim_specs.get("funcx_endpoint", "")) > 0
-        funcx_gen = len(gen_specs.get("funcx_endpoint", "")) > 0
-
-        if any([funcx_sim, funcx_gen]):
-            try:
-                from funcx import FuncXClient
-                from funcx.sdk.executor import FuncXExecutor
-
-                return FuncXExecutor(FuncXClient()), funcx_sim, funcx_gen
-            except ModuleNotFoundError:
-                logger.warning("funcX use detected but funcX not importable. Is it installed?")
-                return None, False, False
-            except Exception:
-                return None, False, False
-        else:
-            return None, False, False
-
-    @staticmethod
-    def _make_runners(sim_specs, gen_specs):
-        """Creates functions to run a sim or gen. These functions are either
-        called directly by the worker or submitted to a funcX endpoint."""
-
-        funcx_exctr, funcx_sim, funcx_gen = Worker._get_funcx_exctr(sim_specs, gen_specs)
-        sim_f = sim_specs["sim_f"]
-
-        def run_sim(calc_in, persis_info, libE_info):
-            """Calls or submits the sim func."""
-            if funcx_sim and funcx_exctr:
-                return Worker._funcx_result(funcx_exctr, sim_f, calc_in, persis_info, sim_specs, libE_info)
-            else:
-                return sim_f(calc_in, persis_info, sim_specs, libE_info)
-
-        if gen_specs:
-            gen_f = gen_specs["gen_f"]
-
-            def run_gen(calc_in, persis_info, libE_info):
-                """Calls or submits the gen func."""
-                if funcx_gen and funcx_exctr:
-                    return Worker._funcx_result(funcx_exctr, gen_f, calc_in, persis_info, gen_specs, libE_info)
-                else:
-                    return gen_f(calc_in, persis_info, gen_specs, libE_info)
-
-        else:
-            run_gen = []
-
-        return {EVAL_SIM_TAG: run_sim, EVAL_GEN_TAG: run_gen}
 
     @staticmethod
     def _set_rset_team(rset_team):
@@ -249,7 +198,7 @@ class Worker:
         # from output_directory.py
         if calc_type == EVAL_SIM_TAG:
             enum_desc = "sim_id"
-            calc_id = EnsembleDirectory.extract_H_ranges(Work)
+            calc_id = extract_H_ranges(Work)
         else:
             enum_desc = "Gen no"
             # Use global gen count if available
@@ -301,28 +250,30 @@ class Worker:
             calc_status = CALC_EXCEPTION
             raise
         finally:
-            # This was meant to be handled by calc_stats module.
-            if task_timing and Executor.executor.list_of_tasks:
-                # Initially supporting one per calc. One line output.
-                task = Executor.executor.list_of_tasks[-1]
-                calc_msg = "{} {}: {} {} {} Status: {}".format(
-                    enum_desc,
-                    calc_id,
-                    calc_type_strings[calc_type],
-                    timer,
-                    task.timer,
-                    calc_status_strings.get(calc_status, calc_status),
-                )
-            else:
-                calc_msg = "{} {}: {} {} Status: {}".format(
-                    enum_desc,
-                    calc_id,
-                    calc_type_strings[calc_type],
-                    timer,
-                    calc_status_strings.get(calc_status, calc_status),
-                )
+            ctype_str = calc_type_strings[calc_type]
+            status = calc_status_strings.get(calc_status, calc_status)
+            calc_msg = self._get_calc_msg(enum_desc, calc_id, ctype_str, timer, status)
 
             logging.getLogger(LogConfig.config.stats_name).info(calc_msg)
+            # logging.getLogger(LogConfig.config.random_name).info(calc_msg)
+
+    def _get_calc_msg(self, enum_desc, calc_id, calc_type, timer, status):
+        """Construct line for libE_stats.txt file"""
+
+        calc_msg = "{} {}: {} {}".format(enum_desc, calc_id, calc_type, timer)
+
+        if self.stats_fmt.get("task_timing", False) or self.stats_fmt.get("task_datetime", False):
+            calc_msg += Executor.executor.new_tasks_timing(datetime=self.stats_fmt.get("task_datetime", False))
+
+        if self.stats_fmt.get("show_resource_sets", False):
+            # Maybe just call option resource_sets if already in sub-dictionary
+            resources = Resources.resources.worker_resources
+            calc_msg += " rsets: {}".format(resources.rset_team)
+
+        # Always put status last as could involve different numbers of words. Some scripts may assume this.
+        calc_msg += " Status: {}".format(status)
+
+        return calc_msg
 
     def _recv_H_rows(self, Work):
         """Unpacks Work request and receives any history rows"""
