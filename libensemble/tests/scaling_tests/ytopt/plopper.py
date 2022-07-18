@@ -62,10 +62,10 @@ class Plopper:
         kernel_idx = self.sourcefile.rfind('/')
         kernel_dir = self.sourcefile[:kernel_idx]
 
-
-        cmd1 = "mpicc -fno-caret-diagnostics "  +interimfile +" " + kernel_dir + "/Materials.c " \
+        cmd1 = "cc -std=gnu99 -Wall -flto -dynamic  -fopenmp -DOPENMP -DMPI -O3 "  + \
+                " -o " + tmpbinary + " " + interimfile +" " + kernel_dir + "/Materials.c " \
                 + kernel_dir + "/XSutils.c " + " -I" + kernel_dir + \
-                " -std=c99 -fopenmp -DOPENMP -DMPI -fno-unroll-loops -O3 -mllvm -polly -mllvm -polly-process-unprofitable -mllvm -polly-use-llvm-names -ffast-math -march=native -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib -o "+tmpbinary
+                " -lm "
 
         cmd2 = kernel_dir + "/exe.pl " +  tmpbinary
 

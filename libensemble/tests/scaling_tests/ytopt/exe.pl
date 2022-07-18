@@ -14,9 +14,7 @@ foreach $filename (@ARGV) {
    for(@nn) {
     $retval = gettimeofday( );
     # 8 MPI ranks total, 8 ranks per node (1 node)
-    # system("aprun -n 8 -N 8 $filename >/dev/null 2>&1");
-    # Switch out the system() lines when running locally
-    system("mpirun -np 2 $filename >/dev/null 2>&1");
+    system("aprun -n 16 -N 1 $filename >/dev/null 2>&1");
     $tt = gettimeofday( );
     $ttotal = $tt - $retval;
     $ssum = $ssum + $ttotal;

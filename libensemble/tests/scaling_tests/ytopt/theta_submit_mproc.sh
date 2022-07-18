@@ -1,8 +1,8 @@
 #!/bin/bash -x
-#COBALT -t 00:30:00
+#COBALT -t 00:60:00
 #COBALT -n 8
-#COBALT -q debug-cache-quad
-#COBALT -A <project code>
+#COBALT -A EE-ECP
+#COBALT -q debug-flat-quad
 
 # Script to run libEnsemble using multiprocessing on launch nodes.
 # Assumes Conda environment is set up.
@@ -23,7 +23,7 @@ export NWORKERS="--nworkers 9"  # extra worker running generator (no resources n
 # Adjust exe.pl so workers correctly use their resources
 
 # Name of Conda environment
-export CONDA_ENV_NAME=<conda_env_name>
+export CONDA_ENV_NAME=yt
 
 export PMI_NO_FORK=1 # Required for python kills on Theta
 
@@ -38,4 +38,4 @@ export PYTHONNOUSERSITE=1
 conda activate $CONDA_ENV_NAME
 
 # Launch libE
-python $EXE $COMMS $NWORKERS --learner=RF > out.txt 2>&1
+python $EXE $COMMS $NWORKERS --learner=RF --max-evals=64 > out.txt 2>&1

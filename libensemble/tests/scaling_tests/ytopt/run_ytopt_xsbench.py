@@ -44,7 +44,7 @@ for entry in user_args_in:
 
     user_args[key] = value
 
-req_settings = ['learner']
+req_settings = ['learner','max-evals']
 assert all([opt in user_args for opt in req_settings]), \
     "Required settings missing. Specify each setting in " + str(req_settings)
 
@@ -55,36 +55,30 @@ libE_specs['sim_dirs_make'] = False  # Otherwise directories separated by each s
 libE_specs['ensemble_dir_path'] = './ensemble_' + secrets.token_hex(nbytes=4)
 
 # Copy or symlink needed files into unique directories
-libE_specs['sim_dir_copy_files'] = [here + f for f in ['mmp.c', 'Materials.c', 'XSutils.c', 'XSbench_header.h']]
-libE_specs['sim_dir_symlink_files'] = [here + f for f in ['exe.pl', 'plopper.py']]
+#libE_specs['sim_dir_copy_files'] = [here + f for f in ['mmp.c', 'Materials.c', 'XSutils.c', 'XSbench_header.h']]
+libE_specs['sim_dir_symlink_files'] = [here + f for f in ['mmp.c', 'Materials.c', 'XSutils.c', 'XSbench_header.h', 'exe.pl', 'plopper.py']]
 
 # Declare the sim_f to be optimized, and the input/outputs
 sim_specs = {
     'sim_f': init_obj,
-    'in': ['p0', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'],
-    'out': [('RUN_TIME', float)],
+    'in': ['p0', 'p1', 'p2', 'p3', 'p4'],
+    'out': [('RUNTIME', float)],
 }
 
 cs = CS.ConfigurationSpace(seed=1234)
 # Initialize the ytopt ask/tell interface (to be used by the gen_f)
-p0 = CSH.OrdinalHyperparameter(name='p0', sequence=[2, 3, 4, 5, 6, 7, 8], default_value=8)
+p0 = CSH.OrdinalHyperparameter(name='p0', sequence=[8,16,32,64,128,256], default_value=64)
 # block size for openmp dynamic schedule
 p1 = CSH.OrdinalHyperparameter(name='p1', sequence=[10, 20, 40, 64, 80, 100, 128, 160, 200], default_value=100)
-# clang unrolling
-p2 = CSH.CategoricalHyperparameter(name='p2', choices=["#pragma clang loop unrolling full", " "], default_value=' ')
 # omp parallel
-p3 = CSH.CategoricalHyperparameter(name='p3', choices=["#pragma omp parallel for", " "], default_value=' ')
-# tile size for one dimension for 2D tiling
-p4 = CSH.OrdinalHyperparameter(name='p4', sequence=[2, 4, 8, 16, 32, 64, 96, 128, 256], default_value=96)
-# tile size for another dimension for 2D tiling
-p5 = CSH.OrdinalHyperparameter(name='p5', sequence=[2, 4, 8, 16, 32, 64, 96, 128, 256], default_value=256)
+p2 = CSH.CategoricalHyperparameter(name='p2', choices=["#pragma omp parallel for", " "], default_value=' ')
 # omp placement
-p6 = CSH.CategoricalHyperparameter(name='p6', choices=['cores', 'threads', 'sockets'], default_value='cores')
-p7 = CSH.CategoricalHyperparameter(name='p7',
+p3 = CSH.CategoricalHyperparameter(name='p3', choices=['cores', 'threads', 'sockets'], default_value='cores')
+p4 = CSH.CategoricalHyperparameter(name='p4',
                                    choices=['compact', 'scatter', 'balanced', 'none', 'disabled', 'explicit'],
                                    default_value='none')
 
-cs.add_hyperparameters([p0, p1, p2, p3, p4, p5, p6, p7])
+cs.add_hyperparameters([p0, p1, p2, p3, p4])
 ytoptimizer = Optimizer(
     num_workers=num_sim_workers,
     space=cs,
@@ -96,9 +90,9 @@ ytoptimizer = Optimizer(
 # Declare the gen_f that will generate points for the sim_f, and the various input/outputs
 gen_specs = {
     'gen_f': persistent_ytopt,
-    'out': [('p0', int, (1,)), ('p1', int, (1,)), ('p2', "<U34", (1,)), ('p3', "<U24", (1,)),
-            ('p4', int, (1,)), ('p5', int, (1,)), ('p6', "<U7", (1,)), ('p7', "<U8", (1,)), ],
-    'persis_in': sim_specs['in'] + ['RUN_TIME'],
+    'out': [('p0', int, (1,)), ('p1', int, (1,)), ('p2', "<U24", (1,)),
+            ('p3', "<U7", (1,)), ('p4', "<U8", (1,)), ],
+    'persis_in': sim_specs['in'] + ['RUNTIME'],
     'user': {
         'ytoptimizer': ytoptimizer,  # provide optimizer to generator function
         'num_sim_workers': num_sim_workers,
@@ -111,7 +105,7 @@ alloc_specs = {
 }
 
 # Specify when to exit. More options: https://libensemble.readthedocs.io/en/main/data_structures/exit_criteria.html
-exit_criteria = {'gen_max': 100}
+exit_criteria = {'gen_max': int(user_args['max-evals'])}
 
 # Added as a workaround to issue that's been resolved on develop
 persis_info = add_unique_random_streams({}, nworkers + 1)
@@ -126,8 +120,9 @@ if is_manager:
     save_libE_output(H, persis_info, __file__, nworkers)
 
     print("\nSaving just sim_specs[['in','out']] to a CSV")
-    H = np.load(glob.glob('*.npy')[0])
+    H = H[H["sim_ended"]]
+    #H = H[H["returned"]]
     dtypes = H[gen_specs['persis_in']].dtype
     b = np.vstack(map(list, H[gen_specs['persis_in']]))
-    print(b)
-    np.savetxt('final_Output.csv',b, header=','.join(dtypes.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
+    #print(b)
+    np.savetxt('results.csv',b, header=','.join(dtypes.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))

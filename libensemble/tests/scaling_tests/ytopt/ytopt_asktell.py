@@ -35,7 +35,7 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
                 field_params = {}
                 for field in fields:
                     field_params[field] = entry[field][0]
-                results += [(field_params, entry['RUN_TIME'])]
+                results += [(field_params, entry['RUNTIME'])]
             print('results: ', results)
             ytoptimizer.tell(results)
 
@@ -56,7 +56,7 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
         if calc_in is not None:
             if len(calc_in):
                 b = np.vstack(map(list, calc_in))
-                with open('output.csv', 'a') as f:
+                with open('../../output.csv', 'a') as f:
                     if first_write:
                         np.savetxt(f, b, header=','.join(calc_in.dtype.names), delimiter=',',fmt=','.join(['%s']*b.shape[1]))
                         first_write = False

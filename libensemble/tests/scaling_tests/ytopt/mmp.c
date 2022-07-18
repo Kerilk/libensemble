@@ -1,4 +1,4 @@
-include "XSbench_header.h"
+#include "XSbench_header.h"
 
 #ifdef MPI
 #include<mpi.h>
@@ -34,7 +34,7 @@ int main( int argc, char* argv[] )
 
 	// Set number of OpenMP Threads
 	#ifdef OPENMP
-	omp_set_num_threads(in.nthreads);
+	omp_set_num_threads(in.nthreads); 
 	#endif
 
 	// Print-out of Input Summary
@@ -46,7 +46,7 @@ int main( int argc, char* argv[] )
 	// This is not reflective of a real Monte Carlo simulation workload,
 	// therefore, do not profile this region!
 	// =====================================================================
-
+	
 	SimulationData SD;
 
 	// If read from file mode is selected, skip initialization and load
@@ -64,7 +64,7 @@ int main( int argc, char* argv[] )
 
 	// =====================================================================
 	// Cross Section (XS) Parallel Lookup Simulation
-	// This is the section that should be profiled, as it reflects a
+	// This is the section that should be profiled, as it reflects a 
 	// realistic continuous energy Monte Carlo macroscopic cross section
 	// lookup kernel.
 	// =====================================================================
@@ -96,8 +96,8 @@ int main( int argc, char* argv[] )
 	else
 		verification = run_history_based_simulation(in, SD, mype);
 
-	if( mype == 0)
-	{
+	if( mype == 0)	
+	{	
 		printf("\n" );
 		printf("Simulation complete.\n" );
 	}
@@ -166,7 +166,7 @@ int print_results( Inputs in, int mype, double runtime, int nprocs,
 	else if( in.simulation_method == EVENT_BASED )
 		lookups = in.lookups;
 	int lookups_per_sec = (int) ((double) lookups / runtime);
-
+	
 	// If running in MPI, reduce timing statistics and calculate average
 	#ifdef MPI
 	int total_lookups = 0;
@@ -176,7 +176,7 @@ int print_results( Inputs in, int mype, double runtime, int nprocs,
 	#endif
 
 	int is_invalid_result = 1;
-
+	
 	// Print output
 	if( mype == 0 )
 	{
@@ -203,7 +203,7 @@ int print_results( Inputs in, int mype, double runtime, int nprocs,
 	}
 
 	unsigned long long large = 0;
-	unsigned long long small = 0;
+	unsigned long long small = 0; 
 	if( in.simulation_method == EVENT_BASED )
 	{
 		small = 945990;
@@ -212,7 +212,7 @@ int print_results( Inputs in, int mype, double runtime, int nprocs,
 	else if( in.simulation_method == HISTORY_BASED )
 	{
 		small = 941535;
-		large = 954318;
+		large = 954318; 
 	}
 	if( strcmp(in.HM, "large") == 0 )
 	{
@@ -350,27 +350,27 @@ Inputs read_CLI( int argc, char * argv[] )
 
 	// defaults to the history based simulation method
 	input.simulation_method = HISTORY_BASED;
-
-	// defaults to max threads on the system
+	
+	// defaults to max threads on the system	
 	#ifdef OPENMP
 	//input.nthreads = omp_get_num_procs();
 	input.nthreads = #P0;
 	#else
 	input.nthreads = 1;
 	#endif
-
+	
 	// defaults to 355 (corresponding to H-M Large benchmark)
 	input.n_isotopes = 355;
-
+	
 	// defaults to 11303 (corresponding to H-M Large benchmark)
 	input.n_gridpoints = 11303;
 
 	// defaults to 500,000
 	input.particles = 500000;
-
+	
 	// defaults to 34
 	input.lookups = 34;
-
+	
 	// default to unionized grid
 	input.grid_type = UNIONIZED;
 
@@ -379,25 +379,25 @@ Inputs read_CLI( int argc, char * argv[] )
 
 	// default to no binary read/write
 	input.binary_mode = NONE;
-
+	
 	// defaults to baseline kernel
 	input.kernel_id = 0;
-
+	
 	// defaults to H-M Large benchmark
 	input.HM = (char *) malloc( 6 * sizeof(char) );
-	input.HM[0] = 'l' ;
-	input.HM[1] = 'a' ;
-	input.HM[2] = 'r' ;
-	input.HM[3] = 'g' ;
-	input.HM[4] = 'e' ;
+	input.HM[0] = 'l' ; 
+	input.HM[1] = 'a' ; 
+	input.HM[2] = 'r' ; 
+	input.HM[3] = 'g' ; 
+	input.HM[4] = 'e' ; 
 	input.HM[5] = '\0';
-
+	
 	// Check if user sets these
 	int user_g = 0;
 
 	int default_lookups = 1;
 	int default_particles = 1;
-
+	
 	// Collect Raw Input
 	for( int i = 1; i < argc; i++ )
 	{
@@ -413,7 +413,7 @@ Inputs read_CLI( int argc, char * argv[] )
 		}
 		// n_gridpoints (-g)
 		else if( strcmp(arg, "-g") == 0 )
-		{
+		{	
 			if( ++i < argc )
 			{
 				user_g = 1;
@@ -478,7 +478,7 @@ Inputs read_CLI( int argc, char * argv[] )
 		}
 		// HM (-s)
 		else if( strcmp(arg, "-s") == 0 )
-		{
+		{	
 			if( ++i < argc )
 				input.HM = argv[i];
 			else
@@ -533,15 +533,15 @@ Inputs read_CLI( int argc, char * argv[] )
 	}
 
 	// Validate Input
-
+	
 	// Validate nthreads
 	if( input.nthreads < 1 )
 		print_CLI_error();
-
+	
 	// Validate n_isotopes
 	if( input.n_isotopes < 1 )
 		print_CLI_error();
-
+	
 	// Validate n_gridpoints
 	if( input.n_gridpoints < 1 )
 		print_CLI_error();
@@ -550,17 +550,17 @@ Inputs read_CLI( int argc, char * argv[] )
 	if( input.lookups < 1 )
 		print_CLI_error();
 
-	// Validate Hash Bins
+	// Validate Hash Bins 
 	if( input.hash_bins < 1 )
 		print_CLI_error();
-
+	
 	// Validate HM size
 	if( strcasecmp(input.HM, "small") != 0 &&
 		strcasecmp(input.HM, "large") != 0 &&
 		strcasecmp(input.HM, "XL") != 0 &&
 		strcasecmp(input.HM, "XXL") != 0 )
 		print_CLI_error();
-
+	
 	// Set HM size specific parameters
 	// (defaults to large)
 	if( strcasecmp(input.HM, "small") == 0 )
@@ -587,7 +587,7 @@ void binary_write( Inputs in, SimulationData SD )
 	fwrite(SD.num_nucs,       sizeof(int), SD.length_num_nucs, fp);
 	fwrite(SD.concs,          sizeof(double), SD.length_concs, fp);
 	fwrite(SD.mats,           sizeof(int), SD.length_mats, fp);
-	fwrite(SD.nuclide_grid,   sizeof(NuclideGridPoint), SD.length_nuclide_grid, fp);
+	fwrite(SD.nuclide_grid,   sizeof(NuclideGridPoint), SD.length_nuclide_grid, fp); 
 	fwrite(SD.index_grid, sizeof(int), SD.length_index_grid, fp);
 	fwrite(SD.unionized_energy_array, sizeof(double), SD.length_unionized_energy_array, fp);
 
@@ -597,7 +597,7 @@ void binary_write( Inputs in, SimulationData SD )
 SimulationData binary_read( Inputs in )
 {
 	SimulationData SD;
-
+	
 	char * fname = "XS_data.dat";
 	printf("Reading all data structures from binary file %s...\n", fname);
 
@@ -619,7 +619,7 @@ SimulationData binary_read( Inputs in )
 	fread(SD.num_nucs,       sizeof(int), SD.length_num_nucs, fp);
 	fread(SD.concs,          sizeof(double), SD.length_concs, fp);
 	fread(SD.mats,           sizeof(int), SD.length_mats, fp);
-	fread(SD.nuclide_grid,   sizeof(NuclideGridPoint), SD.length_nuclide_grid, fp);
+	fread(SD.nuclide_grid,   sizeof(NuclideGridPoint), SD.length_nuclide_grid, fp); 
 	fread(SD.index_grid, sizeof(int), SD.length_index_grid, fp);
 	fread(SD.unionized_energy_array, sizeof(double), SD.length_unionized_energy_array, fp);
 
@@ -642,9 +642,9 @@ SimulationData binary_read( Inputs in )
 
 unsigned long long run_event_based_simulation(Inputs in, SimulationData SD, int mype)
 {
-	if( mype == 0)
+	if( mype == 0)	
 		printf("Beginning event based simulation...\n");
-
+	
 	////////////////////////////////////////////////////////////////////////////////
 	// SUMMARY: Simulation Data Structure Manifest for "SD" Object
 	// Here we list all heap arrays (and lengths) in SD that would need to be
@@ -656,7 +656,7 @@ unsigned long long run_event_based_simulation(Inputs in, SimulationData SD, int 
 	// double * unionized_energy_array;    // Length = length_unionized_energy_array
 	// int * index_grid;                   // Length = length_index_grid
 	// NuclideGridPoint * nuclide_grid;    // Length = length_nuclide_grid
-	//
+	// 
 	// Note: "unionized_energy_array" and "index_grid" can be of zero length
 	//        depending on lookup method.
 	//
@@ -666,21 +666,21 @@ unsigned long long run_event_based_simulation(Inputs in, SimulationData SD, int 
 
 
 	////////////////////////////////////////////////////////////////////////////////
-	// Begin Actual Simulation Loop
+	// Begin Actual Simulation Loop 
 	////////////////////////////////////////////////////////////////////////////////
 	unsigned long long verification = 0;
 	#pragma omp parallel for schedule(dynamic,#P1) reduction(+:verification)
 	for( int i = 0; i < in.lookups; i++ )
 	{
 		// Set the initial seed value
-		uint64_t seed = STARTING_SEED;
+		uint64_t seed = STARTING_SEED;	
 
 		// Forward seed to lookup index (we need 2 samples per lookup)
 		seed = fast_forward_LCG(seed, 2*i);
 
 		// Randomly pick an energy and material for the particle
 		double p_energy = LCG_random_double(&seed);
-		int mat         = pick_mat(&seed);
+		int mat         = pick_mat(&seed); 
 
 		double macro_xs_vector[5] = {0};
 
@@ -728,10 +728,10 @@ unsigned long long run_event_based_simulation(Inputs in, SimulationData SD, int 
 
 unsigned long long run_history_based_simulation(Inputs in, SimulationData SD, int mype)
 {
-	if( mype == 0)
+	if( mype == 0)	
 		printf("Beginning history based simulation...\n");
 
-
+	
 	////////////////////////////////////////////////////////////////////////////////
 	// SUMMARY: Simulation Data Structure Manifest for "SD" Object
 	// Here we list all heap arrays (and lengths) in SD that would need to be
@@ -743,7 +743,7 @@ unsigned long long run_history_based_simulation(Inputs in, SimulationData SD, in
 	// double * unionized_energy_array;    // Length = length_unionized_energy_array
 	// int * index_grid;                   // Length = length_index_grid
 	// NuclideGridPoint * nuclide_grid;    // Length = length_nuclide_grid
-	//
+	// 
 	// Note: "unionized_energy_array" and "index_grid" can be of zero length
 	//        depending on lookup method.
 	//
@@ -758,7 +758,7 @@ unsigned long long run_history_based_simulation(Inputs in, SimulationData SD, in
 	for( int p = 0; p < in.particles; p++ )
 	{
 		// Set the initial seed value
-		uint64_t seed = STARTING_SEED;
+		uint64_t seed = STARTING_SEED;	
 
 		// Forward seed to lookup index (we need 2 samples per lookup, and
 		// we may fast forward up to 5 times after each lookup)
@@ -766,7 +766,7 @@ unsigned long long run_history_based_simulation(Inputs in, SimulationData SD, in
 
 		// Randomly pick an energy and material for the particle
 		double p_energy = LCG_random_double(&seed);
-		int mat         = pick_mat(&seed);
+		int mat         = pick_mat(&seed); 
 
 		// Inner XS Lookup Loop
 		// This loop is dependent!
@@ -793,7 +793,7 @@ unsigned long long run_history_based_simulation(Inputs in, SimulationData SD, in
 					SD.max_num_nucs  // Maximum number of nuclides present in any material
 					);
 
-
+		
 			// For verification, and to prevent the compiler from optimizing
 			// all work out, we interrogate the returned macro_xs_vector array
 			// to find its maximum value index, then increment the verification
@@ -828,7 +828,7 @@ unsigned long long run_history_based_simulation(Inputs in, SimulationData SD, in
 				seed = fast_forward_LCG(seed, n_forward);
 
 			p_energy = LCG_random_double(&seed);
-			mat      = pick_mat(&seed);
+			mat      = pick_mat(&seed); 
 		}
 
 	}
@@ -898,29 +898,29 @@ void calculate_micro_xs(   double p_energy, int nuc, long n_isotopes,
 		else
 			low = &nuclide_grids[nuc*n_gridpoints + lower];
 	}
-
+	
 	high = low + 1;
-
+	
 	// calculate the re-useable interpolation factor
 	f = (high->energy - p_energy) / (high->energy - low->energy);
 
 	// Total XS
 	xs_vector[0] = high->total_xs - f * (high->total_xs - low->total_xs);
-
+	
 	// Elastic XS
 	xs_vector[1] = high->elastic_xs - f * (high->elastic_xs - low->elastic_xs);
-
+	
 	// Absorbtion XS
 	xs_vector[2] = high->absorbtion_xs - f * (high->absorbtion_xs - low->absorbtion_xs);
-
+	
 	// Fission XS
 	xs_vector[3] = high->fission_xs - f * (high->fission_xs - low->fission_xs);
-
+	
 	// Nu Fission XS
 	xs_vector[4] = high->nu_fission_xs - f * (high->nu_fission_xs - low->nu_fission_xs);
 }
 
-// Calculates macroscopic cross section based on a given material & energy
+// Calculates macroscopic cross section based on a given material & energy 
 void calculate_macro_xs( double p_energy, int mat, long n_isotopes,
                          long n_gridpoints, int * restrict num_nucs,
                          double * restrict concs,
@@ -929,7 +929,7 @@ void calculate_macro_xs( double p_energy, int mat, long n_isotopes,
                          int * restrict mats,
                          double * restrict macro_xs_vector, int grid_type, int hash_bins, int max_num_nucs ){
 	int p_nuc; // the nuclide we are looking up
-	long idx = -1;
+	long idx = -1;	
 	double conc; // the concentration of the nuclide in the material
 
 	// cleans out macro_xs_vector
@@ -942,13 +942,13 @@ void calculate_macro_xs( double p_energy, int mat, long n_isotopes,
 	// done inside of the "calculate_micro_xs" function for each different
 	// nuclide in the material.
 	if( grid_type == UNIONIZED )
-		idx = grid_search( n_isotopes * n_gridpoints, p_energy, egrid);
+		idx = grid_search( n_isotopes * n_gridpoints, p_energy, egrid);	
 	else if( grid_type == HASH )
 	{
 		double du = 1.0 / hash_bins;
 		idx = p_energy / du;
 	}
-
+	
 	// Once we find the pointer array on the UEG, we can pull the data
 	// from the respective nuclide grids, as well as the nuclide
 	// concentration data for the material
@@ -985,15 +985,15 @@ long grid_search( long n, double quarry, double * restrict A)
 	while( length > 1 )
 	{
 		examinationPoint = lowerLimit + ( length / 2 );
-
+		
 		if( A[examinationPoint] > quarry )
 			upperLimit = examinationPoint;
 		else
 			lowerLimit = examinationPoint;
-
+		
 		length = upperLimit - lowerLimit;
 	}
-
+	
 	return lowerLimit;
 }
 
@@ -1008,15 +1008,15 @@ long grid_search_nuclide( long n, double quarry, NuclideGridPoint * A, long low,
 	while( length > 1 )
 	{
 		examinationPoint = lowerLimit + ( length / 2 );
-
+		
 		if( A[examinationPoint].energy > quarry )
 			upperLimit = examinationPoint;
 		else
 			lowerLimit = examinationPoint;
-
+		
 		length = upperLimit - lowerLimit;
 	}
-
+	
 	return lowerLimit;
 }
 
@@ -1024,7 +1024,7 @@ long grid_search_nuclide( long n, double quarry, NuclideGridPoint * A, long low,
 int pick_mat( uint64_t * seed )
 {
 	// I have a nice spreadsheet supporting these numbers. They are
-	// the fractions (by volume) of material in the core. Not a
+	// the fractions (by volume) of material in the core. Not a 
 	// *perfect* approximation of where XS lookups are going to occur,
 	// but this will do a good job of biasing the system nonetheless.
 
@@ -1041,7 +1041,7 @@ int pick_mat( uint64_t * seed )
 	dist[9]  = 0.015;	// top nozzle
 	dist[10] = 0.025;	// top of fuel assemblies
 	dist[11] = 0.013;	// bottom of fuel assemblies
-
+	
 	double roll = LCG_random_double(seed);
 
 	// makes a pick based on the distro
@@ -1065,7 +1065,7 @@ double LCG_random_double(uint64_t * seed)
 	const uint64_t c = 1ULL;
 	*seed = (a * (*seed) + c) % m;
 	return (double) (*seed) / (double) m;
-}
+}	
 
 uint64_t fast_forward_LCG(uint64_t seed, uint64_t n)
 {
@@ -1079,7 +1079,7 @@ uint64_t fast_forward_LCG(uint64_t seed, uint64_t n)
 	uint64_t a_new = 1;
 	uint64_t c_new = 0;
 
-	while(n > 0)
+	while(n > 0) 
 	{
 		if(n & 1)
 		{
@@ -1132,7 +1132,7 @@ uint64_t fast_forward_LCG(uint64_t seed, uint64_t n)
 // Eduard's original implementation carries the following license, which applies to
 // the following functions only:
 //
-//	void quickSort_parallel_internal_i_d(int* key,double * value, int left, int right, int cutoff)
+//	void quickSort_parallel_internal_i_d(int* key,double * value, int left, int right, int cutoff) 
 //  void quickSort_parallel_i_d(int* key,double * value, int lenArray, int numThreads)
 //  void quickSort_parallel_internal_d_i(double* key,int * value, int left, int right, int cutoff)
 //  void quickSort_parallel_d_i(double* key,int * value, int lenArray, int numThreads)
@@ -1160,12 +1160,12 @@ uint64_t fast_forward_LCG(uint64_t seed, uint64_t n)
 // SOFTWARE.
 //
 ////////////////////////////////////////////////////////////////////////////////////
-void quickSort_parallel_internal_i_d(int* key,double * value, int left, int right, int cutoff)
+void quickSort_parallel_internal_i_d(int* key,double * value, int left, int right, int cutoff) 
 {
 	int i = left, j = right;
 	int tmp;
 	int pivot = key[(left + right) / 2];
-
+	
 	{
 		while (i <= j) {
 			while (key[i] < pivot)
@@ -1187,14 +1187,14 @@ void quickSort_parallel_internal_i_d(int* key,double * value, int left, int righ
 	}
 
 	if ( ((right-left)<cutoff) ){
-		if (left < j){ quickSort_parallel_internal_i_d(key, value, left, j, cutoff); }
+		if (left < j){ quickSort_parallel_internal_i_d(key, value, left, j, cutoff); }			
 		if (i < right){ quickSort_parallel_internal_i_d(key, value, i, right, cutoff); }
 
 	}else{
-		#pragma omp task
+		#pragma omp task 	
 		{ quickSort_parallel_internal_i_d(key, value, left, j, cutoff); }
-		#pragma omp task
-		{ quickSort_parallel_internal_i_d(key, value, i, right, cutoff); }
+		#pragma omp task 	
+		{ quickSort_parallel_internal_i_d(key, value, i, right, cutoff); }		
 	}
 
 }
@@ -1209,21 +1209,21 @@ void quickSort_parallel_i_d(int* key,double * value, int lenArray, int numThread
 		numThreads = 16;
 
 	#pragma omp parallel num_threads(numThreads)
-	{
+	{	
 		#pragma omp single nowait
 		{
-			quickSort_parallel_internal_i_d(key,value, 0, lenArray-1, cutoff);
+			quickSort_parallel_internal_i_d(key,value, 0, lenArray-1, cutoff);	
 		}
-	}
+	}	
 
 }
 
-void quickSort_parallel_internal_d_i(double* key,int * value, int left, int right, int cutoff)
+void quickSort_parallel_internal_d_i(double* key,int * value, int left, int right, int cutoff) 
 {
 	int i = left, j = right;
 	double tmp;
 	double pivot = key[(left + right) / 2];
-
+	
 	{
 		while (i <= j) {
 			while (key[i] < pivot)
@@ -1245,14 +1245,14 @@ void quickSort_parallel_internal_d_i(double* key,int * value, int left, int righ
 	}
 
 	if ( ((right-left)<cutoff) ){
-		if (left < j){ quickSort_parallel_internal_d_i(key, value, left, j, cutoff); }
+		if (left < j){ quickSort_parallel_internal_d_i(key, value, left, j, cutoff); }			
 		if (i < right){ quickSort_parallel_internal_d_i(key, value, i, right, cutoff); }
 
 	}else{
-		#pragma omp task
+		#pragma omp task 	
 		{ quickSort_parallel_internal_d_i(key, value, left, j, cutoff); }
-		#pragma omp task
-		{ quickSort_parallel_internal_d_i(key, value, i, right, cutoff); }
+		#pragma omp task 	
+		{ quickSort_parallel_internal_d_i(key, value, i, right, cutoff); }		
 	}
 
 }
@@ -1267,12 +1267,12 @@ void quickSort_parallel_d_i(double* key,int * value, int lenArray, int numThread
 		numThreads = 16;
 
 	#pragma omp parallel num_threads(numThreads)
-	{
+	{	
 		#pragma omp single nowait
 		{
-			quickSort_parallel_internal_d_i(key,value, 0, lenArray-1, cutoff);
+			quickSort_parallel_internal_d_i(key,value, 0, lenArray-1, cutoff);	
 		}
-	}
+	}	
 
 }
 
@@ -1296,9 +1296,9 @@ void quickSort_parallel_d_i(double* key,int * value, int lenArray, int numThread
 unsigned long long run_event_based_simulation_optimization_1(Inputs in, SimulationData SD, int mype)
 {
 	char * optimization_name = "Optimization 1 - Kernel splitting + full material & energy sort";
-
+	
 	if( mype == 0)	printf("Simulation Kernel:\"%s\"\n", optimization_name);
-
+	
 	////////////////////////////////////////////////////////////////////////////////
 	// Allocate Additional Data Structures Needed by Optimized Kernel
 	////////////////////////////////////////////////////////////////////////////////
@@ -1316,13 +1316,13 @@ unsigned long long run_event_based_simulation_optimization_1(Inputs in, Simulati
 	SD.mat_samples = (int *) malloc(sz);
 	total_sz += sz;
 	SD.length_mat_samples = in.lookups;
-
+	
 	if( mype == 0)	printf("Allocated an additional %.0lf MB of data on GPU.\n", total_sz/1024.0/1024.0);
-
+	
 	////////////////////////////////////////////////////////////////////////////////
-	// Begin Actual Simulation
+	// Begin Actual Simulation 
 	////////////////////////////////////////////////////////////////////////////////
-
+	
 	////////////////////////////////////////////////////////////////////////////////
 	// Sample Materials and Energies
 	////////////////////////////////////////////////////////////////////////////////
@@ -1330,24 +1330,24 @@ unsigned long long run_event_based_simulation_optimization_1(Inputs in, Simulati
 	for( int i = 0; i < in.lookups; i++ )
 	{
 		// Set the initial seed value
-		uint64_t seed = STARTING_SEED;
+		uint64_t seed = STARTING_SEED;	
 
 		// Forward seed to lookup index (we need 2 samples per lookup)
 		seed = fast_forward_LCG(seed, 2*i);
 
 		// Randomly pick an energy and material for the particle
 		double p_energy = LCG_random_double(&seed);
-		int mat         = pick_mat(&seed);
+		int mat         = pick_mat(&seed); 
 
 		SD.p_energy_samples[i] = p_energy;
 		SD.mat_samples[i] = mat;
 	}
 	if(mype == 0) printf("finished sampling...\n");
-
+	
 	////////////////////////////////////////////////////////////////////////////////
 	// Sort by Material
 	////////////////////////////////////////////////////////////////////////////////
-
+	
 	start = get_time();
 
 	quickSort_parallel_i_d(SD.mat_samples, SD.p_energy_samples, in.lookups, in.nthreads);
@@ -1355,14 +1355,14 @@ unsigned long long run_event_based_simulation_optimization_1(Inputs in, Simulati
 	stop = get_time();
 
 	if(mype == 0) printf("Material sort took %.3lf seconds\n", stop-start);
-
+	
 	////////////////////////////////////////////////////////////////////////////////
 	// Sort by Energy
 	////////////////////////////////////////////////////////////////////////////////
-
+	
 	start = get_time();
-
-	// Count up number of each type of sample.
+	
+	// Count up number of each type of sample. 
 	int num_samples_per_mat[12] = {0};
 	for( int l = 0; l < in.lookups; l++ )
 		num_samples_per_mat[ SD.mat_samples[l] ]++;
@@ -1371,7 +1371,7 @@ unsigned long long run_event_based_simulation_optimization_1(Inputs in, Simulati
 	int offsets[12] = {0};
 	for( int m = 1; m < 12; m++ )
 		offsets[m] = offsets[m-1] + num_samples_per_mat[m-1];
-
+	
 	stop = get_time();
 	if(mype == 0) printf("Counting samples and offsets took %.3lf seconds\n", stop-start);
 	start = stop;
@@ -1383,7 +1383,7 @@ unsigned long long run_event_based_simulation_optimization_1(Inputs in, Simulati
 
 	stop = get_time();
 	if(mype == 0) printf("Energy Sorts took %.3lf seconds\n", stop-start);
-
+	
 	////////////////////////////////////////////////////////////////////////////////
 	// Perform lookups for each material separately
 	////////////////////////////////////////////////////////////////////////////////
@@ -1400,7 +1400,7 @@ unsigned long long run_event_based_simulation_optimization_1(Inputs in, Simulati
 		{
 			// load pre-sampled energy and material for the particle
 			double p_energy = SD.p_energy_samples[i];
-			int mat         = SD.mat_samples[i];
+			int mat         = SD.mat_samples[i]; 
 
 			double macro_xs_vector[5] = {0};
 
@@ -1444,7 +1444,7 @@ unsigned long long run_event_based_simulation_optimization_1(Inputs in, Simulati
 		}
 		offset += num_samples_per_mat[m];
 	}
-
+	
 	stop = get_time();
 	if(mype == 0) printf("XS Lookups took %.3lf seconds\n", stop-start);
 	return verification;
@@ -1461,25 +1461,25 @@ SimulationData grid_init_do_not_profile( Inputs in, int mype )
 	size_t nbytes = 0;
 
 	// Set the initial seed value
-	uint64_t seed = 42;
+	uint64_t seed = 42;	
 
 	////////////////////////////////////////////////////////////////////
 	// Initialize Nuclide Grids
 	////////////////////////////////////////////////////////////////////
-
+	
 	if(mype == 0) printf("Intializing nuclide grids...\n");
 
 	// First, we need to initialize our nuclide grid. This comes in the form
 	// of a flattened 2D array that hold all the information we need to define
-	// the cross sections for all isotopes in the simulation.
+	// the cross sections for all isotopes in the simulation. 
 	// The grid is composed of "NuclideGridPoint" structures, which hold the
 	// energy level of the grid point and all associated XS data at that level.
 	// An array of structures (AOS) is used instead of
-	// a structure of arrays, as the grid points themselves are accessed in
+	// a structure of arrays, as the grid points themselves are accessed in 
 	// a random order, but all cross section interaction channels and the
 	// energy level are read whenever the gridpoint is accessed, meaning the
 	// AOS is more cache efficient.
-
+	
 	// Initialize Nuclide Grid
 	SD.length_nuclide_grid = in.n_isotopes * in.n_gridpoints;
 	SD.nuclide_grid     = (NuclideGridPoint *) malloc( SD.length_nuclide_grid * sizeof(NuclideGridPoint));
@@ -1499,7 +1499,7 @@ SimulationData grid_init_do_not_profile( Inputs in, int mype )
 	#P2
 	for( int i = 0; i < in.n_isotopes; i++ )
 		qsort( &SD.nuclide_grid[i*in.n_gridpoints], in.n_gridpoints, sizeof(NuclideGridPoint), NGP_compare);
-
+	
 	// error debug check
 	/*
 	#P2
@@ -1510,18 +1510,18 @@ SimulationData grid_init_do_not_profile( Inputs in, int mype )
 			printf("E%d = %lf\n", j, SD.nuclide_grid[i * in.n_gridpoints + j].energy);
 	}
 	*/
-
+	
 
 	////////////////////////////////////////////////////////////////////
 	// Initialize Acceleration Structure
 	////////////////////////////////////////////////////////////////////
-
+	
 	if( in.grid_type == NUCLIDE )
 	{
 		SD.length_unionized_energy_array = 0;
 		SD.length_index_grid = 0;
 	}
-
+	
 	if( in.grid_type == UNIONIZED )
 	{
 		if(mype == 0) printf("Intializing unionized grid...\n");
@@ -1569,7 +1569,7 @@ SimulationData grid_init_do_not_profile( Inputs in, int mype )
 				{
 					idx_low[i]++;
 					SD.index_grid[e * in.n_isotopes + i] = idx_low[i];
-					energy_high[i] = SD.nuclide_grid[i * in.n_gridpoints + idx_low[i] + 1].energy;
+					energy_high[i] = SD.nuclide_grid[i * in.n_gridpoints + idx_low[i] + 1].energy;	
 				}
 			}
 		}
@@ -1583,7 +1583,7 @@ SimulationData grid_init_do_not_profile( Inputs in, int mype )
 		if(mype == 0) printf("Intializing hash grid...\n");
 		SD.length_unionized_energy_array = 0;
 		SD.length_index_grid  = in.hash_bins * in.n_isotopes;
-		SD.index_grid = (int *) malloc( SD.length_index_grid * sizeof(int));
+		SD.index_grid = (int *) malloc( SD.length_index_grid * sizeof(int)); 
 		assert(SD.index_grid != NULL);
 		nbytes += SD.length_index_grid * sizeof(int);
 
@@ -1607,7 +1607,7 @@ SimulationData grid_init_do_not_profile( Inputs in, int mype )
 	// Initialize Materials and Concentrations
 	////////////////////////////////////////////////////////////////////
 	if(mype == 0) printf("Intializing material data...\n");
-
+	
 	// Set the number of nuclides in each material
 	SD.num_nucs  = load_num_nucs(in.n_isotopes);
 	SD.length_num_nucs = 12; // There are always 12 materials in XSBench
@@ -1631,3 +1631,4 @@ SimulationData grid_init_do_not_profile( Inputs in, int mype )
 	return SD;
 
 }
+
