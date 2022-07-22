@@ -60,6 +60,9 @@ ytoptimizer = Optimizer(
     learner=user_args['learner'],
     liar_strategy='cl_max',
     acq_func='gp_hedge',
+    set_KAPPA=1.96,
+    set_SEED=1234,
+    set_NI=10,
 )
 
 # Declare the gen_f that will generator points for the sim_f, and the various input/outputs

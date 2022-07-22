@@ -4,7 +4,7 @@ This module is a wrapper around an example ytopt objective function
 __all__ = ['init_obj']
 
 import numpy as np
-from xsbench_plopper import Plopper
+from july_exctr_plopper import Plopper
 
 
 def init_obj(H, persis_info, sim_specs, libE_info):
