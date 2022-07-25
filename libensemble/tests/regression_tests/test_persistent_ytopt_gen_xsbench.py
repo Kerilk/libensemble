@@ -69,7 +69,7 @@ ytoptimizer = Optimizer(
 gen_specs = {
     'gen_f': gen_f,
     'out': [('p0', int, (1,)), ('p1', int, (1,)), ('p2', "<U25", (1,))],
-    'persis_in': sim_specs['in'] + ['RUN_TIME'],
+    'persis_in': sim_specs['in'] + ['RUN_TIME', 'sim_started_time', 'sim_ended_time'],
     'user': {
         'ytoptimizer': ytoptimizer,
         'num_sim_workers': num_sim_workers,

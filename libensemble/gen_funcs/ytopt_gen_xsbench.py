@@ -29,6 +29,8 @@ def persistent_ytopt(H, persis_info, gen_specs, libE_info):
             first_call = False
         else:
             batch_size = len(calc_in)
+            elapsed_secs = calc_in['sim_ended_time']-calc_in['sim_started_time']
+            print(elapsed_secs)
             results = []
             for entry in calc_in:
                 field_params = {}
