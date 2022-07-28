@@ -30,7 +30,7 @@ from ytopt.search.optimizer import Optimizer
 nworkers, is_manager, libE_specs, user_args_in = parse_args()
 num_sim_workers = nworkers - 1  # Subtracting one because one worker will be the generator
 
-assert len(user_args_in), "learner, etc. not specified, e.g. --learner RF"
+assert user_args_in, "learner or max-evals etc. not specified, e.g. --learner=RF --max-evals=64"
 user_args = {}
 for entry in user_args_in:
     if entry.startswith('--'):
