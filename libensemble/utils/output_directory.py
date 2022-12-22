@@ -23,23 +23,20 @@ class EnsembleDirectory:
     back its results on completion or exception into the directory that libEnsemble
     was originally launched from.
 
-    Ensemble directory behavior can be configured via separate libE_specs
-    dictionary entries or defining an EnsembleDirectory object within libE_specs.
-
     Parameters
     ----------
-    libE_specs: dict
+    worker_dir_specs: dict
         Parameters/information for libE operations. EnsembleDirectory only extracts
         values specific for ensemble directory operations. Can technically contain
-        a different set of settings then the libE_specs passed to libE().
+        a different set of settings then the worker_dir_specs passed to libE().
 
     loc_stack: object
         A LocationStack object from libEnsemble's internal libensemble.utils.loc_stack module.
     """
 
-    def __init__(self, libE_specs=None, loc_stack=None):
+    def __init__(self, worker_dir_specs=None, loc_stack=None):
 
-        self.specs = libE_specs
+        self.specs = worker_dir_specs
         self.loc_stack = loc_stack
 
         if self.specs is not None:
@@ -83,7 +80,7 @@ class EnsembleDirectory:
             return self.gen_use
 
     def _make_calc_dir(self, workerID, H_rows, calc_str, locs):
-        """Create calc dirs and intermediate dirs, copy inputs, based on libE_specs"""
+        """Create calc dirs and intermediate dirs, copy inputs, based on worker_dir_specs"""
         if calc_str == "sim":
             input_dir = self.sim_input_dir
             do_calc_dirs = self.sim_dirs_make

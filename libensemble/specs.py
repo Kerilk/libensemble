@@ -203,133 +203,8 @@ class ExitCriteria(BaseModel):
     """Stop when ``H[str] < float`` for the given ``(str, float)`` pair"""
 
 
-class LibeSpecs(BaseModel):
-    """
-    Specifications for configuring libEnsemble's runtime behavior. Equivalent to a ``libE_specs`` dictionary.
-    """
-
-    abort_on_exception: Optional[bool] = True
-    """
-    In MPI mode, whether to call ``MPI_ABORT`` on an exception.
-    If False, an exception will be raised by the manager
-    """
-
-    enforce_worker_core_bounds: Optional[bool] = False
-    """
-    If ``False``, the Executor will permit submission of tasks with a
-    higher processor count than the CPUs available to the worker as
-    detected by the resource manager. Larger node counts are not allowed.
-    When ``"disable_resource_manager"`` is ``True``,
-    this argument is ignored
-    """
-
-    authkey: Optional[str] = f"libE_auth_{random.randrange(99999)}"
-    """ TCP Only: Authkey for Manager's system"""
-
-    disable_resource_manager: Optional[bool] = False
-    """
-    Disable the built-in resource manager. If ``True``, automatic resource detection
-    and/or assignment of resources to workers is disabled. ``resource_info`` will
-    also be ignored
-    """
-
-    dedicated_mode: Optional[bool] = False
-    """
-    Instructs libEnsemble to not run applications on resources where libEnsemble
-    processes (manager and workers) are running
-    """
-
-    comms: str = "mpi"
-    """ Manager/Worker communications mode. ``'mpi'``, ``'local'``, or ``'tcp'`` """
-
-    resource_info: Optional[dict] = {}
-    """
-    Resource information to override automatically detected resources.
-    Allowed fields are given below in 'Overriding Auto-detection'
-    Note that if ``disable_resource_manager`` is set then this option is ignored
-    """
-
-    disable_log_files: Optional[bool] = False
-    """ Disable the creation of ``ensemble.log`` and ``libE_stats.txt`` log files """
-
-    final_fields: Optional[List[str]] = []
-    """
-    List of fields in ``H`` that the manager will return to persistent
-    workers along with the ``PERSIS_STOP`` tag at the end of a run
-    """
-
-    ip: Optional[str] = None
-    """ TCP Only: IP address for Manager's system """
-
-    kill_canceled_sims: Optional[bool] = True
-    """
-    Instructs libEnsemble to send kill signals to sims with their ``cancel_requested`` field set.
-    If ``False``, the manager avoids this moderate overhead
-    """
-
-    mpi_comm: Optional[_MPICommValidationModel] = None  # see utils/specs_checkers.py
-    """ libEnsemble communicator. Default: ``MPI.COMM_WORLD`` """
-
-    num_resource_sets: Optional[int]
-    """
-    Total number of resource sets. Resources will be divided into this number.
-    If not set, resources will be divided evenly (excluding zero_resource_workers).
-    """
-    nworkers: Optional[int]
-    """ Number of worker processes to spawn (only in local/tcp modes) """
-
-    port: Optional[int] = 0
-    """ TCP Only: Port number for Manager's system """
-
-    profile: Optional[bool] = False
-    """ Profile manager and worker logic using cProfile """
-
-    safe_mode: Optional[bool] = True
-    """ Prevents user functions from overwriting protected History fields, but requires moderate overhead """
-
-    save_every_k_gens: Optional[int] = 0
-    """  Save history array to file after every k generated points """
-
-    save_every_k_sims: Optional[int] = 0
-    """ Save history array to file after every k evaluated points """
-
-    save_H_and_persis_on_abort: Optional[bool] = True
-    """ Save states of ``H`` and ``persis_info`` on aborting after an exception"""
-
-    scheduler_opts: Optional[dict] = {}
-    """ Options for the resource scheduler. See 'Scheduler Options' for more info """
-
-    stats_fmt: Optional[dict] = {}
-    """ Options for formatting 'libE_stats.txt'. See 'Formatting Options for libE_stats File' for more info """
-
-    use_persis_return_gen: Optional[bool] = False
-    """ Adds persistent generator output fields to the History array on return """
-
-    use_persis_return_sim: Optional[bool] = False
-    """ Adds persistent simulator output fields to the History array on return """
-
-    workerID: Optional[int]
-    """ TCP Only: Worker ID number assigned to the new process """
-
-    worker_timeout: Optional[int] = 1
-    """ On libEnsemble shutdown, number of seconds after which workers considered timed out, then terminated """
-
-    zero_resource_workers: Optional[List[int]] = []
-    """
-    List of workers that require no resources. For when a fixed mapping of workers
-    to resources is required. Otherwise, use ``num_resource_sets``
-    For use with supported allocation functions
-    """
-
-    worker_cmd: Optional[List[str]]
-    """
-    TCP Only: Split string corresponding to worker/client Python process invocation. Contains
-    a local Python path, calling script, and manager/server format-fields for manager_ip,
-    manager_port, authkey, and workerID. nworkers is specified normally
-    """
-
-    workers: Optional[List[str]]
-    """ TCP Only: A list of worker hostnames """
+class _WorkerDirSpecs(BaseModel):
+    """ Model to check validity of worker dir options """
 
     ensemble_copy_back: Optional[bool] = False
     """
@@ -381,14 +256,6 @@ class LibeSpecs(BaseModel):
     If not using calculation directories, contents are copied to the ensemble directory
     """
 
-    class Config:
-        arbitrary_types_allowed = True
-
-    @validator("comms")
-    def check_valid_comms_type(cls, value):
-        assert value in ["mpi", "local", "tcp"], "Invalid comms type"
-        return value
-
     @validator("sim_input_dir", "gen_input_dir")
     def check_input_dir_exists(cls, value):
         assert os.path.exists(value), "libE_specs['{}'] does not refer to an existing path.".format(value)
@@ -398,6 +265,152 @@ class LibeSpecs(BaseModel):
     def check_inputs_exist(cls, value):
         for f in value:
             assert os.path.exists(f), "'{}' in libE_specs['{}'] does not refer to an existing path.".format(f, value)
+        return value
+
+class _TCPSpecs(BaseModel):
+    """ Internal model to check validity of TCP options """
+
+    authkey: Optional[str] = f"libE_auth_{random.randrange(99999)}"
+    """ Authkey for Manager's system"""
+
+    ip: Optional[str] = None
+    """ IP address for Manager's system """
+
+    port: Optional[int] = 0
+    """ Port number for Manager's system """
+
+    workerID: Optional[int]
+    """ Worker ID number assigned to the new process """
+
+    worker_cmd: Optional[List[str]]
+    """
+    Split string corresponding to worker/client Python process invocation. Contains
+    a local Python path, calling script, and manager/server format-fields for manager_ip,
+    manager_port, authkey, and workerID. nworkers is specified normally
+    """
+
+    workers: Optional[List[str]]
+    """ A list of worker hostnames """
+
+
+class LibeSpecs(BaseModel):
+    """
+    Specifications for configuring libEnsemble's runtime behavior. Equivalent to a ``libE_specs`` dictionary.
+    """
+
+    abort_on_exception: Optional[bool] = True
+    """
+    In MPI mode, whether to call ``MPI_ABORT`` on an exception.
+    If False, an exception will be raised by the manager
+    """
+
+    enforce_worker_core_bounds: Optional[bool] = False
+    """
+    If ``False``, the Executor will permit submission of tasks with a
+    higher processor count than the CPUs available to the worker as
+    detected by the resource manager. Larger node counts are not allowed.
+    When ``"disable_resource_manager"`` is ``True``,
+    this argument is ignored
+    """
+
+    disable_resource_manager: Optional[bool] = False
+    """
+    Disable the built-in resource manager. If ``True``, automatic resource detection
+    and/or assignment of resources to workers is disabled. ``resource_info`` will
+    also be ignored
+    """
+
+    dedicated_mode: Optional[bool] = False
+    """
+    Instructs libEnsemble to not run applications on resources where libEnsemble
+    processes (manager and workers) are running
+    """
+
+    comms: str = "mpi"
+    """ Manager/Worker communications mode. ``'mpi'``, ``'local'``, or ``'tcp'`` """
+
+    resource_info: Optional[dict] = {}
+    """
+    Resource information to override automatically detected resources.
+    Allowed fields are given below in 'Overriding Auto-detection'
+    Note that if ``disable_resource_manager`` is set then this option is ignored
+    """
+
+    disable_log_files: Optional[bool] = False
+    """ Disable the creation of ``ensemble.log`` and ``libE_stats.txt`` log files """
+
+    final_fields: Optional[List[str]] = []
+    """
+    List of fields in ``H`` that the manager will return to persistent
+    workers along with the ``PERSIS_STOP`` tag at the end of a run
+    """
+
+    kill_canceled_sims: Optional[bool] = True
+    """
+    Instructs libEnsemble to send kill signals to sims with their ``cancel_requested`` field set.
+    If ``False``, the manager avoids this moderate overhead
+    """
+
+    mpi_comm: Optional[_MPICommValidationModel] = None  # see utils/specs_checkers.py
+    """ libEnsemble communicator. Default: ``MPI.COMM_WORLD`` """
+
+    num_resource_sets: Optional[int]
+    """
+    Total number of resource sets. Resources will be divided into this number.
+    If not set, resources will be divided evenly (excluding zero_resource_workers).
+    """
+    nworkers: Optional[int]
+    """ Number of worker processes to spawn (only in local/tcp modes) """
+
+    profile: Optional[bool] = False
+    """ Profile manager and worker logic using cProfile """
+
+    safe_mode: Optional[bool] = True
+    """ Prevents user functions from overwriting protected History fields, but requires moderate overhead """
+
+    save_every_k_gens: Optional[int] = 0
+    """  Save history array to file after every k generated points """
+
+    save_every_k_sims: Optional[int] = 0
+    """ Save history array to file after every k evaluated points """
+
+    save_H_and_persis_on_abort: Optional[bool] = True
+    """ Save states of ``H`` and ``persis_info`` on aborting after an exception"""
+
+    scheduler_opts: Optional[dict] = {}
+    """ Options for the resource scheduler. See 'Scheduler Options' for more info """
+
+    stats_fmt: Optional[dict] = {}
+    """ Options for formatting 'libE_stats.txt'. See 'Formatting Options for libE_stats File' for more info """
+
+    tcp_specs: Optional[_TCPSpecs] = {}
+    """ Specifications for TCP Comms """
+
+    use_persis_return_gen: Optional[bool] = False
+    """ Adds persistent generator output fields to the History array on return """
+
+    use_persis_return_sim: Optional[bool] = False
+    """ Adds persistent simulator output fields to the History array on return """
+
+    worker_dir_specs: Optional[_WorkerDirSpecs] = {}
+    """ Specifications for working directories for workers"""
+
+    worker_timeout: Optional[int] = 1
+    """ On libEnsemble shutdown, number of seconds after which workers considered timed out, then terminated """
+
+    zero_resource_workers: Optional[List[int]] = []
+    """
+    List of workers that require no resources. For when a fixed mapping of workers
+    to resources is required. Otherwise, use ``num_resource_sets``
+    For use with supported allocation functions
+    """
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    @validator("comms")
+    def check_valid_comms_type(cls, value):
+        assert value in ["mpi", "local", "tcp"], "Invalid comms type"
         return value
 
     @root_validator

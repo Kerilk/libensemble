@@ -192,7 +192,7 @@ class Manager:
             (1, "stop_val", self.term_test_stop_val),
         ]
 
-        temp_EnsembleDirectory = EnsembleDirectory(libE_specs=libE_specs)
+        temp_EnsembleDirectory = EnsembleDirectory(worker_dir_specs=libE_specs.get("worker_dir_specs"))
         self.resources = Resources.resources
         if self.resources is not None:
             for wrk in self.W:

@@ -139,7 +139,7 @@ class Worker:
         self._run_calc = Runners(sim_specs, gen_specs).make_runners()
         Worker._set_executor(self.workerID, self.comm)
         Worker._set_resources(self.workerID, self.comm)
-        self.EnsembleDirectory = EnsembleDirectory(libE_specs=libE_specs)
+        self.EnsembleDirectory = EnsembleDirectory(worker_dir_specs=libE_specs.get("worker_dir_specs"))
 
     @staticmethod
     def _set_rset_team(rset_team):

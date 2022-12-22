@@ -86,7 +86,7 @@ def _check_any_workers_and_disable_rm_if_tcp(values):
             assert values.get("nworkers") >= 1, "Must specify at least one worker"
         else:
             if comms_type == "tcp":
-                assert values.get("workers"), "Without nworkers, must specify worker hosts on TCP"
+                assert values.get("tcp_specs").get("workers"), "Without nworkers, must specify worker hosts on TCP"
     if comms_type == "tcp":
         values["disable_resource_manager"] = True  # Resource management not supported with TCP
     return values
