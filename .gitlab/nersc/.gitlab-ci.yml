@@ -1,0 +1,20 @@
+variables:
+  SCHEDULER_PARAMETERS: "-N 1 -G 1 -C cpu -t 00:15:00"
+
+stages:
+  - test
+
+test:
+    stage: test
+    tags:
+      - cori
+    rules:
+    - if: '($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - .gitlab-ci.yml
+
+    before_script:
+    - pwd
+    script:
+    - echo "hello libe at nersc"
