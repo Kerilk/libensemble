@@ -1,5 +1,6 @@
 name: libEnsemble-CI
 on:
+  push:
   pull_request:
     types:
       - ready_for_review
@@ -130,10 +131,8 @@ jobs:
             python -m pip install --upgrade pip
             pip install scikit-learn==1.0.2
             pip install numpy==1.24.1
-            git clone https://github.com/ytopt-team/ConfigSpace.git
-            cd ConfigSpace
-            pip install .
-            cd ..
+            pip install ConfigSpace
+            pip install "ray[default]" 
             python -c "import ConfigSpace as CS; print(dir(CS)); print('1'); print(CS.__path__); print('2');"
             python -c "import ConfigSpace as CS; CS.ConfigurationSpace()"
             git clone https://github.com/ytopt-team/scikit-optimize.git
